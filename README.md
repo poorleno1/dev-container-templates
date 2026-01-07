@@ -12,7 +12,7 @@ cd /path/to/your/project
 # Copy a template (replace 'azure-terraform' with desired template)
 gh repo clone poorleno1/dev-container-templates temp-templates
 cp -r temp-templates/azure-terraform/.devcontainer ./
-rm -rf temp-templates
+remove-Item -Path "temp-templates" -Recurse -Force -ErrorAction SilentlyContinue
 
 # Open in VS Code and rebuild container
 code .
