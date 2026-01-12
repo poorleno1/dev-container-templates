@@ -1,56 +1,76 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/powershell
 {
-	"name": "PowerShell",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/base:debian-12",
-	"features": {
-		"ghcr.io/devcontainers/features/common-utils:2": {
-			"installZsh": "true",
-			"username": "vscode",
-			"upgradePackages": "false",
-			"nonFreePackages": "true"
-		},
-		"ghcr.io/devcontainers/features/azure-cli:1": {},
-		"ghcr.io/devcontainers/features/powershell:1": {
-			"version": "latest"
-		},
-		"ghcr.io/devcontainers/features/terraform:1": {
-			"version": "1.2.9"
-		},
-		"ghcr.io/devcontainers/features/github-cli:1": {},
-		"ghcr.io/devcontainers/features/git:1": {
-			"ppa": false,
-			"version": "latest"
-		}
-	},
+    "name": "Infrastructure Development Container",
+    // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+    "image": "mcr.microsoft.com/devcontainers/base:debian-12",
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "installZsh": "true",
+            "username": "vscode",
+            "upgradePackages": "false",
+            "nonFreePackages": "true"
+        },
+        "ghcr.io/devcontainers/features/azure-cli:1": {},
+        "ghcr.io/devcontainers/features/powershell:1": {
+            "version": "latest"
+        },
+        "ghcr.io/devcontainers/features/terraform:1": {
+            "version": "1.2.9"
+        },
+        "ghcr.io/devcontainers/features/python:1": {
+            "version": "3.11",
+            "installTools": true
+        },
+        "ghcr.io/devcontainers/features/github-cli:1": {},
+        "ghcr.io/devcontainers/features/git:1": {
+            "ppa": false,
+            "version": "latest"
+        }
+    },
 
-	"postCreateCommand": "sudo chsh vscode -s \"$(which pwsh)\"",
+    "postCreateCommand": "sudo chsh vscode -s \"$(which pwsh)\"",
 
-	// Mount SSH agent for secure key forwarding
-	"mounts": [
-		"source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
-	],
+    // Mount SSH keys for secure Git operations (Windows compatible)
+    "mounts": [
+        {
+            "source": "${localEnv:USERPROFILE}/.ssh",
+            "target": "/home/vscode/.ssh",
+            "type": "bind"
+        }
+    ],
 
-	// Configure tool-specific properties.
-	"customizations": {
-		// Configure properties specific to VS Code.
-		"vscode": {
-			// Set *default* container specific settings.json values on container create.
-			"settings": { 
-				"terminal.integrated.defaultProfile.linux": "pwsh"
-			},
-			
-			// Add the IDs of extensions you want installed when the container is created.
-			"extensions": [
-				"ms-vscode.powershell"
-			]
-		}
-	}
+    // Configure tool-specific properties.
+    "customizations": {
+        // Configure properties specific to VS Code.
+        "vscode": {
+            // Set *default* container specific settings.json values on container create.
+            "settings": { 
+                "terminal.integrated.defaultProfile.linux": "pwsh",
+                "terraform.experimentalFeatures.validateOnSave": true,
+                "terraform.languageServer.enable": true,
+                "files.associations": {
+                    "*.tf": "terraform",
+                    "*.tfvars": "terraform"
+                }
+            },
+            
+            // Add the IDs of extensions you want installed when the container is created.
+            "extensions": [
+                "ms-vscode.powershell",
+                "HashiCorp.terraform",
+                "ms-vscode.azurecli",
+                "GitHub.copilot",
+                "GitHub.copilot-chat",
+                "ms-azuretools.vscode-azureresourcegroups",
+                "ms-vscode.vscode-json"
+            ]
+        }
+    }
 
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
+    // Use 'forwardPorts' to make a list of ports inside the container available locally.
+    // "forwardPorts": [],
 
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
+    // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+    // "remoteUser": "root"
 }
