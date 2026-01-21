@@ -14,9 +14,6 @@
         "ghcr.io/devcontainers/features/powershell:1": {
             "version": "latest"
         },
-        "ghcr.io/devcontainers/features/terraform:1": {
-            "version": "1.2.9"
-        },
         "ghcr.io/devcontainers/features/python:1": {
             "version": "3.11",
             "installTools": true
@@ -28,8 +25,8 @@
         }
     },
 
-    "postCreateCommand": "bash -c 'sudo chsh vscode -s \"$(which pwsh)\" && git config --global core.autocrlf false && git config --global core.safecrlf warn && git config --global core.filemode false && git clone --depth=1 https://github.com/tfutils/tfenv.git ~/.tfenv && ~/.tfenv/bin/tfenv install 1.2.9 && ~/.tfenv/bin/tfenv install 1.4.0 && ~/.tfenv/bin/tfenv use 1.2.9'",
-	"postStartCommand": "bash -c 'for f in ~/.tfenv/bin/*; do [ -f /usr/local/bin/$(basename $f) ] || sudo ln -s $f /usr/local/bin/$(basename $f); done'",
+    "postCreateCommand": "bash -c 'sudo chsh vscode -s \"$(which pwsh)\" && git config --global core.autocrlf false && git config --global core.safecrlf warn && git config --global core.filemode false && git clone --depth=1 https://github.com/tfutils/tfenv.git ~/.tfenv && ~/.tfenv/bin/tfenv install 1.2.9 && ~/.tfenv/bin/tfenv install 1.4.0 && ~/.tfenv/bin/tfenv use 1.2.9 && bash .devcontainer/post-create.sh'",
+	"postStartCommand": "bash -c 'for f in ~/.tfenv/bin/*; do [ -f /usr/local/bin/$(basename $f) ] || sudo ln -s $f /usr/local/bin/$(basename $f); done && chmod 700 ~/.ssh && chmod 600 ~/.ssh/* && chmod 644 ~/.ssh/*.pub 2>/dev/null || true'",
 	"postAttachCommand": "bash -c 'echo \"export PATH=\\\"$HOME/.tfenv/bin:\\$PATH\\\"\" >> ~/.bashrc && echo \"export PATH=\\\"$HOME/.tfenv/bin:\\$PATH\\\"\" >> ~/.zshrc'",
 
     // Mount SSH keys for secure Git operations (cross-platform: uses HOME on macOS/Linux, USERPROFILE on Windows)
@@ -41,8 +38,7 @@
         }
     ],
 
-    // Fix SSH permissions after container creation
-    "postStartCommand": "chmod 700 ~/.ssh && chmod 600 ~/.ssh/* && chmod 644 ~/.ssh/*.pub 2>/dev/null || true",
+
 
     // Configure tool-specific properties.
     "customizations": {
