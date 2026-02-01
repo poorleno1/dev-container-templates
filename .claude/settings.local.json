@@ -1,0 +1,122 @@
+{
+  "permissions": {
+    "autoApprove": {
+      "Read": true,
+      "Glob": true,
+      "Grep": true,
+      "Bash": {
+        "enabled": true,
+        "allowPatterns": [
+          "^ls\\s",
+          "^pwd$",
+          "^whoami$",
+          "^date$",
+          "^tree\\s",
+          "^cat\\s",
+          "^head\\s",
+          "^tail\\s",
+          "^find\\s",
+          "^grep\\s",
+
+          "^az login$",
+          "^az logout$",
+          "^az version$",
+          "^az account",
+          "^az group",
+          "^az resource",
+          "^az .*\\s(show|list)",
+
+          "^Get-",
+          "^Select-",
+          "^Where-",
+          "^Format-",
+          "^Out-",
+          "^Test-Path",
+
+          "^docker ps",
+          "^docker images",
+          "^docker version$",
+          "^docker info$",
+          "^docker logs",
+
+          "^git status$",
+          "^git log",
+          "^git add",
+          "^git commit",
+          "^git show",
+          "^git diff",
+          "^git branch",
+          "^git checkout",
+
+          "^terraform init",
+          "^terraform plan",
+          "^terraform fmt",
+          "^terraform validate$",
+          "^terraform output",
+          "^terraform show",
+          "^terraform version$",
+
+          "^jq",
+          "^sed",
+          "^diff"
+        ],
+        "blockPatterns": [
+          "rm -rf",
+          "terraform destroy",
+          "terraform apply",
+          "git push --force",
+          "git reset --hard",
+          "git clean -f",
+          "az.*delete",
+          "az.*create",
+          "docker rm",
+          "docker rmi",
+          "DROP.*",
+          "DELETE FROM"
+        ]
+      }
+    }
+  },
+
+  "terraform": {
+    "autoFormat": true,
+    "autoValidate": false,
+    "confirmApply": true,
+    "confirmDestroy": true,
+    "defaultVersion": "1.2.9",
+    "autoApprovePlan": true,
+    "autoApproveInit": true
+  },
+
+  "git": {
+    "confirmCommit": false,
+    "confirmPush": true,
+    "confirmForcePush": true,
+    "autoApproveAdd": true,
+    "autoApproveCheckout": true,
+    "defaultBranch": "main"
+  },
+
+  "azure": {
+    "confirmDestructive": true,
+    "autoApproveLogin": true,
+    "autoApproveReadOperations": true
+  },
+
+  "docker": {
+    "autoApproveReadOperations": true,
+    "confirmDestructive": true
+  },
+
+  "powershell": {
+    "autoApproveReadCmdlets": true,
+    "autoApproveFormatCmdlets": true
+  },
+
+  "project": {
+    "autoCreateDocsFolder": true,
+    "createClaudeInstructions": "ask"
+  },
+
+  "note": "Claude Code workspace settings for dev containers. Persists across container rebuilds. Customize patterns as needed for your workflow."
+}

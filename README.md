@@ -12,12 +12,39 @@ cd /path/to/your/project
 # Copy a template (replace 'azure-terraform' with desired template)
 gh repo clone poorleno1/dev-container-templates temp-templates
 cp -r temp-templates/azure-terraform/.devcontainer ./
-remove-Item -Path "temp-templates" -Recurse -Force -ErrorAction SilentlyContinue
+mkdir -p .claude
+cp temp-templates/.claude/settings.local.json ./.claude/  # Claude Code settings
+rm -rf temp-templates
 
 # Open in VS Code and rebuild container
 code .
 # Then: Ctrl+Shift+P → "Dev Containers: Rebuild Container"
 ```
+
+### Configure Claude Code Settings (Optional but Recommended)
+
+If you're using Claude Code as your AI assistant, the template includes workspace-level settings that persist across container rebuilds:
+
+**What's included:**
+- ✅ Auto-approves safe commands: `git status`, `terraform plan`, `az account list`, `docker ps`
+- ⚠️ Requires confirmation for: `terraform apply`, `git push`, `az group create`
+- 🔒 Blocks dangerous commands: `rm -rf`, `terraform destroy`, `git push --force`
+- 💾 Persists across dev container rebuilds
+- 👥 Shared configuration across team members
+
+**Testing after container rebuild:**
+```bash
+# Ask Claude to run these commands:
+# "run git status" → should auto-approve ✓
+# "run terraform apply" → should ask for confirmation ✓
+```
+
+**Customization:**
+Edit `.claude/settings.local.json` to adjust auto-approve patterns for your workflow.
+
+**Learn more:** See [docs/CLAUDE-CODE-SETUP.md](docs/CLAUDE-CODE-SETUP.md) for complete setup guide, customization options, and migration from GitHub Copilot.
+
+---
 
 ## 📋 Available Templates
 
@@ -60,6 +87,8 @@ code .
 2. **Copy the template you need:**
    ```bash
    cp -r dev-container-templates/azure-terraform/.devcontainer /your/project/
+   mkdir -p /your/project/.claude
+   cp dev-container-templates/.claude/settings.local.json /your/project/.claude/
    ```
 
 3. **Customize as needed** (edit `devcontainer.json`, add scripts, etc.)
@@ -98,6 +127,7 @@ rm -rf temp-gist
 - **Terraform v1.2.9** - Infrastructure provisioning
 - **PowerShell 7** (latest) - Azure scripting and automation
 - **GitHub CLI** - Repository and gist management
+- **Claude Code settings** - Pre-configured auto-approve patterns for safe commands
 - **Common utilities** - git, curl, wget, jq, tree, etc.
 
 **Base Image:** `mcr.microsoft.com/powershell:lts-debian-11`
