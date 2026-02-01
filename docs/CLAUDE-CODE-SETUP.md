@@ -375,11 +375,77 @@ Example conversion:
 
 ---
 
+## MCP Servers (Model Context Protocol)
+
+### What are MCP Servers?
+
+MCP servers extend Claude Code's capabilities with specialized tools and integrations. The dev container templates include pre-configured MCP servers.
+
+### Configured MCP Servers
+
+**1. HashiCorp Terraform MCP Server**
+- Terraform operations and state management
+- HCP Terraform (Terraform Cloud) integration
+- Workspace querying and inspection
+
+**2. Microsoft Playwright MCP**
+- Browser automation and testing
+- Web page screenshots and DOM inspection
+- Useful for validating deployed applications
+
+**3. Microsoft Learn MCP**
+- Access to Microsoft documentation
+- Azure, PowerShell, and .NET reference
+- Best practices and tutorials
+
+### MCP Configuration Files
+
+When you copy the template, you get:
+- **`.claude/mcp.json`** - MCP servers configuration
+- **`.env.template`** - Environment variables template
+
+### Setting Up MCP Servers
+
+**Step 1: Copy environment template**
+
+```bash
+# Copy template to .env
+cp .env.template .env
+```
+
+**Step 2: Add your credentials (if using Terraform MCP)**
+
+```bash
+# Edit .env and add your HCP Terraform token
+# TFE_TOKEN=your-terraform-cloud-token
+```
+
+**Step 3: Rebuild dev container**
+
+MCP servers will be loaded automatically when the container starts.
+
+### Testing MCP Servers
+
+Ask Claude to use MCP servers:
+- "Use Terraform MCP to show me workspaces"
+- "Use Playwright to take a screenshot of https://terraform.io"
+- "Search Microsoft Learn for Azure Terraform documentation"
+
+### MCP Security
+
+**Important:**
+- `.env` is in `.gitignore` - never commit it
+- `ENABLE_TF_OPERATIONS=false` by default (prevents accidental infrastructure changes)
+- Only enable Terraform operations when explicitly needed
+
+---
+
 ## Resources
 
 - **Template Repository**: [poorleno1/dev-container-templates](https://github.com/poorleno1/dev-container-templates)
 - **Claude Code Documentation**: [Claude Code Official Docs](https://docs.anthropic.com/claude/docs/claude-code)
 - **Dev Containers Guide**: [VS Code Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers)
+- **MCP Specification**: [Model Context Protocol](https://spec.modelcontextprotocol.io/)
 
 ---
 
@@ -388,11 +454,12 @@ Example conversion:
 For issues or questions:
 1. Check this documentation
 2. Review `.claude/settings.local.json` syntax
-3. Try rebuilding dev container
-4. Open an issue in the templates repository
+3. Check `.claude/mcp.json` for MCP configuration
+4. Try rebuilding dev container
+5. Open an issue in the templates repository
 
 ---
 
 **Last Updated**: 2026-02-01
 **Scope**: Dev Container Templates
-**Purpose**: Persistent Claude Code configuration
+**Purpose**: Persistent Claude Code configuration with MCP servers

@@ -1,0 +1,41 @@
+{
+  "mcpServers": {
+    "terraform": {
+      "type": "stdio",
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "TFE_ADDRESS",
+        "-e",
+        "TFE_TOKEN",
+        "-e",
+        "ENABLE_TF_OPERATIONS",
+        "hashicorp/terraform-mcp-server:0.3.3"
+      ],
+      "env": {
+        "TFE_ADDRESS": "https://app.terraform.io",
+        "TFE_TOKEN": "",
+        "ENABLE_TF_OPERATIONS": "false"
+      },
+      "description": "HashiCorp Terraform MCP Server - Terraform operations and state management",
+      "version": "0.3.3"
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ],
+      "description": "Microsoft Playwright MCP - Browser automation and testing",
+      "version": "0.0.54"
+    },
+    "microsoft-learn": {
+      "type": "sse",
+      "url": "https://learn.microsoft.com/api/mcp",
+      "description": "Microsoft Learn MCP - Access to Microsoft documentation and learning resources"
+    }
+  }
+}

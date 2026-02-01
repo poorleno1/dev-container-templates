@@ -14,6 +14,8 @@ gh repo clone poorleno1/dev-container-templates temp-templates
 cp -r temp-templates/azure-terraform/.devcontainer ./
 mkdir -p .claude
 cp temp-templates/.claude/settings.local.json ./.claude/  # Claude Code settings
+cp temp-templates/.claude/mcp.json ./.claude/            # MCP servers config
+cp temp-templates/.env.template ./                        # Environment variables template
 rm -rf temp-templates
 
 # Open in VS Code and rebuild container
@@ -23,26 +25,42 @@ code .
 
 ### Configure Claude Code Settings (Optional but Recommended)
 
-If you're using Claude Code as your AI assistant, the template includes workspace-level settings that persist across container rebuilds:
+If you're using Claude Code as your AI assistant, the template includes workspace-level settings and MCP servers that persist across container rebuilds:
 
-**What's included:**
+**Claude Code Permissions:**
 - ✅ Auto-approves safe commands: `git status`, `terraform plan`, `az account list`, `docker ps`
 - ⚠️ Requires confirmation for: `terraform apply`, `git push`, `az group create`
 - 🔒 Blocks dangerous commands: `rm -rf`, `terraform destroy`, `git push --force`
 - 💾 Persists across dev container rebuilds
 - 👥 Shared configuration across team members
 
+**MCP Servers (Model Context Protocol):**
+- 🔧 **Terraform MCP** - Terraform Cloud integration and state inspection
+- 🌐 **Playwright MCP** - Browser automation and testing
+- 📚 **Microsoft Learn MCP** - Access to Microsoft documentation
+
+**Setup MCP servers (optional):**
+```bash
+# Copy environment template
+cp .env.template .env
+
+# Edit .env and add your HCP Terraform token (if needed)
+# TFE_TOKEN=your-token-here
+```
+
 **Testing after container rebuild:**
 ```bash
 # Ask Claude to run these commands:
 # "run git status" → should auto-approve ✓
 # "run terraform apply" → should ask for confirmation ✓
+# "Use Terraform MCP to show workspaces" → uses MCP server ✓
 ```
 
 **Customization:**
-Edit `.claude/settings.local.json` to adjust auto-approve patterns for your workflow.
+- Edit `.claude/settings.local.json` to adjust auto-approve patterns
+- Edit `.claude/mcp.json` to add/remove MCP servers
 
-**Learn more:** See [docs/CLAUDE-CODE-SETUP.md](docs/CLAUDE-CODE-SETUP.md) for complete setup guide, customization options, and migration from GitHub Copilot.
+**Learn more:** See [docs/CLAUDE-CODE-SETUP.md](docs/CLAUDE-CODE-SETUP.md) for complete setup guide, MCP configuration, customization options, and migration from GitHub Copilot.
 
 ---
 
@@ -89,6 +107,8 @@ Edit `.claude/settings.local.json` to adjust auto-approve patterns for your work
    cp -r dev-container-templates/azure-terraform/.devcontainer /your/project/
    mkdir -p /your/project/.claude
    cp dev-container-templates/.claude/settings.local.json /your/project/.claude/
+   cp dev-container-templates/.claude/mcp.json /your/project/.claude/
+   cp dev-container-templates/.env.template /your/project/
    ```
 
 3. **Customize as needed** (edit `devcontainer.json`, add scripts, etc.)
@@ -128,6 +148,7 @@ rm -rf temp-gist
 - **PowerShell 7** (latest) - Azure scripting and automation
 - **GitHub CLI** - Repository and gist management
 - **Claude Code settings** - Pre-configured auto-approve patterns for safe commands
+- **MCP servers** - Terraform, Playwright, and Microsoft Learn integrations
 - **Common utilities** - git, curl, wget, jq, tree, etc.
 
 **Base Image:** `mcr.microsoft.com/powershell:lts-debian-11`
