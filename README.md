@@ -13,9 +13,9 @@ cd /path/to/your/project
 gh repo clone poorleno1/dev-container-templates temp-templates
 cp -r temp-templates/azure-terraform/.devcontainer ./
 mkdir -p .claude
-cp temp-templates/.claude/settings.local.json ./.claude/  # Claude Code settings
-cp temp-templates/.claude/mcp.json ./.claude/            # MCP servers config
-cp temp-templates/.env.template ./                        # Environment variables template
+cp temp-templates/.claude/settings.local.json ./.claude/
+cp temp-templates/.claude/mcp.json ./.claude/
+cp temp-templates/.env.template ./
 rm -rf temp-templates
 
 # Open in VS Code and rebuild container
