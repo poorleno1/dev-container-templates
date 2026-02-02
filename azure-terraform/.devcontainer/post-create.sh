@@ -18,6 +18,9 @@ sudo apt-get install -y \
     vim \
     file
 
+echo "📦 Installing Claude CLI..."
+curl -fsSL https://claude.ai/install.sh | bash
+
 # Set up PowerShell modules for Azure
 echo "📦 Installing PowerShell modules..."
 pwsh -c "Install-Module -Name Az -Force -AllowClobber -Scope CurrentUser"
