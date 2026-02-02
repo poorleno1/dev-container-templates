@@ -15,7 +15,8 @@ sudo apt-get install -y \
     tree \
     htop \
     nano \
-    vim
+    vim \
+    file
 
 # Set up PowerShell modules for Azure
 echo "📦 Installing PowerShell modules..."
