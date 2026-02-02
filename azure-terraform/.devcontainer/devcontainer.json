@@ -62,6 +62,7 @@
                 "ms-vscode.azurecli",
                 "GitHub.copilot",
                 "GitHub.copilot-chat",
+				"Anthropic.claude-code",
                 "ms-azuretools.vscode-azureresourcegroups",
                 "ms-vscode.vscode-json"
             ]
