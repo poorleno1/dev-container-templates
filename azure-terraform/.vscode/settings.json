@@ -1,0 +1,47 @@
+{
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.insertSpaces": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    
+    // Terraform specific settings
+    "[terraform]": {
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true,
+        "editor.formatOnSave": true
+    },
+    "[terraform-vars]": {
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true,
+        "editor.formatOnSave": true
+    },
+    
+    // PowerShell specific settings
+    "[powershell]": {
+        "editor.tabSize": 4,
+        "editor.insertSpaces": true,
+        "editor.formatOnSave": true,
+        "files.encoding": "utf8bom"
+    },
+    
+    // GitHub Copilot settings
+    "github.copilot.enable": {
+        "*": true,
+        "terraform": true,
+        "powershell": true,
+        "markdown": true,
+        "json": true
+    },
+    "github.copilot.advanced": {},
+    
+    // Extension recommendations
+    "extensions.recommendations": [
+        "github.copilot",
+        "github.copilot-chat",
+        "hashicorp.terraform",
+        "ms-vscode.powershell",
+        "editorconfig.editorconfig",
+        "ms-vscode.vscode-json"
+    ]
+}

@@ -196,17 +196,58 @@ setup_from_template() {
         fi
         
         cp -r "$temp_dir/$template_name/.devcontainer" "$target_dir/"
-        
+
+        # Copy GitHub Copilot instructions if present
+        if [ -d "$temp_dir/$template_name/.github" ]; then
+            mkdir -p "$target_dir/.github/copilot"
+            if [ -f "$temp_dir/$template_name/.github/copilot-instructions.md" ]; then
+                cp "$temp_dir/$template_name/.github/copilot-instructions.md" "$target_dir/.github/"
+                print_success "Copied GitHub Copilot instructions"
+            fi
+            if [ -d "$temp_dir/$template_name/.github/copilot" ]; then
+                cp -r "$temp_dir/$template_name/.github/copilot/" "$target_dir/.github/copilot/"
+                print_success "Copied Copilot language-specific instructions"
+            fi
+        fi
+
+        # Copy EditorConfig if present
+        if [ -f "$temp_dir/$template_name/.editorconfig" ]; then
+            cp "$temp_dir/$template_name/.editorconfig" "$target_dir/"
+            print_success "Copied .editorconfig"
+        fi
+
+        # Copy VS Code settings if present
+        if [ -d "$temp_dir/$template_name/.vscode" ]; then
+            cp -r "$temp_dir/$template_name/.vscode" "$target_dir/"
+            print_success "Copied VS Code settings"
+        fi
+
+        # Copy Claude Code instructions if present
+        if [ -f "$temp_dir/$template_name/CLAUDE.md" ]; then
+            cp "$temp_dir/$template_name/CLAUDE.md" "$target_dir/"
+            print_success "Copied CLAUDE.md"
+        fi
+        if [ -d "$temp_dir/$template_name/.claude/instructions" ]; then
+            mkdir -p "$target_dir/.claude/instructions"
+            cp -r "$temp_dir/$template_name/.claude/instructions/" "$target_dir/.claude/instructions/"
+            print_success "Copied Claude Code language-specific instructions"
+        fi
+
         # Clean up
         rm -rf "$temp_dir"
-        
+
         print_success "Template '$template_name' copied successfully!"
-        print_info "Files created in: $target_dir/.devcontainer"
-        
+        print_info "Files created in: $target_dir"
+
         # Show what was copied
         echo
         echo "📁 Files created:"
         ls -la "$target_dir/.devcontainer"
+        [ -d "$target_dir/.github" ] && echo && ls -la "$target_dir/.github/"
+        [ -d "$target_dir/.claude/instructions" ] && echo && ls -la "$target_dir/.claude/instructions/"
+        [ -f "$target_dir/CLAUDE.md" ] && echo && echo "CLAUDE.md"
+        [ -f "$target_dir/.editorconfig" ] && echo && echo ".editorconfig"
+        [ -d "$target_dir/.vscode" ] && echo && ls -la "$target_dir/.vscode/"
         
         print_success "Dev container setup complete!"
         print_info "Next steps:"

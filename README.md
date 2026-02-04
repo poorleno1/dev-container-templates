@@ -15,6 +15,17 @@ cp -r temp-templates/azure-terraform/.devcontainer ./
 mkdir -p .claude
 cp temp-templates/.claude/settings.local.json ./.claude/
 cp temp-templates/.claude/mcp.json ./.claude/
+
+# Copy AI instruction files (GitHub Copilot + Claude Code)
+mkdir -p .github/copilot
+cp temp-templates/azure-terraform/.github/copilot-instructions.md ./.github/
+cp -r temp-templates/azure-terraform/.github/copilot/ ./.github/copilot/
+cp temp-templates/azure-terraform/.editorconfig ./
+cp -r temp-templates/azure-terraform/.vscode ./
+cp temp-templates/azure-terraform/CLAUDE.md ./
+mkdir -p .claude/instructions
+cp -r temp-templates/azure-terraform/.claude/instructions/ ./.claude/instructions/
+
 cp temp-templates/.env.template ./
 rm -rf temp-templates
 
@@ -109,6 +120,16 @@ cp .env.template .env
    cp dev-container-templates/.claude/settings.local.json /your/project/.claude/
    cp dev-container-templates/.claude/mcp.json /your/project/.claude/
    cp dev-container-templates/.env.template /your/project/
+
+   # AI instruction files
+   mkdir -p /your/project/.github/copilot
+   cp dev-container-templates/azure-terraform/.github/copilot-instructions.md /your/project/.github/
+   cp -r dev-container-templates/azure-terraform/.github/copilot/ /your/project/.github/copilot/
+   cp dev-container-templates/azure-terraform/.editorconfig /your/project/
+   cp -r dev-container-templates/azure-terraform/.vscode /your/project/
+   cp dev-container-templates/azure-terraform/CLAUDE.md /your/project/
+   mkdir -p /your/project/.claude/instructions
+   cp -r dev-container-templates/azure-terraform/.claude/instructions/ /your/project/.claude/instructions/
    ```
 
 3. **Customize as needed** (edit `devcontainer.json`, add scripts, etc.)
@@ -149,6 +170,9 @@ rm -rf temp-gist
 - **GitHub CLI** - Repository and gist management
 - **Claude Code settings** - Pre-configured auto-approve patterns for safe commands
 - **MCP servers** - Terraform, Playwright, and Microsoft Learn integrations
+- **GitHub Copilot instructions** - Terraform, PowerShell, and Azure Pipelines coding guidelines
+- **Claude Code instructions** - Equivalent guidelines optimized for Claude Code (`CLAUDE.md` + `.claude/instructions/`)
+- **EditorConfig + VS Code settings** - Consistent formatting across editors
 - **Common utilities** - git, curl, wget, jq, tree, etc.
 
 **Base Image:** `mcr.microsoft.com/powershell:lts-debian-11`
@@ -166,7 +190,51 @@ azure-terraform/
 │   ├── post-create.sh         # Setup script run after container creation
 │   ├── README.md              # Template-specific documentation
 │   └── TROUBLESHOOTING.md     # Common issues and solutions
+├── .github/
+│   ├── copilot-instructions.md  # GitHub Copilot main instructions
+│   └── copilot/
+│       ├── terraform.md         # Terraform-specific Copilot instructions
+│       ├── powershell.md        # PowerShell-specific Copilot instructions
+│       └── azure-pipelines.md   # Azure Pipelines Copilot instructions
+├── .claude/
+│   └── instructions/
+│       ├── terraform.md         # Terraform guidelines for Claude Code
+│       ├── powershell.md        # PowerShell guidelines for Claude Code
+│       └── azure-pipelines.md   # Azure Pipelines guidelines for Claude Code
+├── .vscode/
+│   └── settings.json            # VS Code workspace settings
+├── CLAUDE.md                    # Claude Code main instructions
+└── .editorconfig                # Editor formatting rules
 ```
+
+## 🤖 AI Coding Instructions
+
+The `azure-terraform` template includes pre-configured instruction files for both **GitHub Copilot** and **Claude Code**. These provide consistent coding guidelines for Terraform, PowerShell, and Azure Pipelines across AI assistants.
+
+### GitHub Copilot Instructions
+
+Files in `.github/` are automatically picked up by GitHub Copilot:
+
+- `.github/copilot-instructions.md` — Global principles (KISS, YAGNI, SRP, DRY, security, documentation)
+- `.github/copilot/terraform.md` — Terraform conventions (Azure regions, naming, state management, provider pinning)
+- `.github/copilot/powershell.md` — PowerShell conventions (CmdletBinding, Pester tests, module structure)
+- `.github/copilot/azure-pipelines.md` — Azure Pipelines conventions (templates, environments, Key Vault secrets)
+
+### Claude Code Instructions
+
+Files in `CLAUDE.md` and `.claude/instructions/` are automatically picked up by Claude Code:
+
+- `CLAUDE.md` — Main entry point with global principles and references to sub-files
+- `.claude/instructions/terraform.md` — Terraform guidelines (same content, optimized for Claude Code)
+- `.claude/instructions/powershell.md` — PowerShell guidelines
+- `.claude/instructions/azure-pipelines.md` — Azure Pipelines guidelines
+
+### Editor Configuration
+
+- `.editorconfig` — Formatting rules (2-space for Terraform/YAML, 4-space for PowerShell)
+- `.vscode/settings.json` — VS Code workspace settings (format on save, language-specific tab sizes, Copilot enablement)
+
+---
 
 ## 🔧 Customization Guide
 
