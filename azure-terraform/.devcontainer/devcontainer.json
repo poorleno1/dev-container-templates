@@ -38,11 +38,16 @@
 
     // Mount SSH keys for secure Git operations (cross-platform: uses HOME on macOS/Linux, USERPROFILE on Windows)
     "mounts": [
-        {
-            "source": "${localEnv:HOME}${localEnv:USERPROFILE}/.ssh",
-            "target": "/home/vscode/.ssh",
-            "type": "bind"
-        }
+    {
+        "source": "${localEnv:HOME}${localEnv:USERPROFILE}/.ssh",
+        "target": "/home/vscode/.ssh",
+        "type": "bind"
+    },
+    {
+        "source": "${localEnv:HOME}${localEnv:USERPROFILE}/.claude",
+        "target": "/home/vscode/.claude",
+        "type": "bind"
+    }
     ],
 
 
