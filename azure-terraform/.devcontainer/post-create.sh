@@ -106,8 +106,8 @@ fi
 
 # Set up Azure CLI extensions
 echo "🔧 Installing Azure CLI extensions..."
-az extension add --name azure-devops --system 2>/dev/null || true
-az extension add --name application-insights --system 2>/dev/null || true
+az extension add --name azure-devops 2>/dev/null || true
+az extension add --name application-insights 2>/dev/null || true
 
 # Create workspace directories
 echo "📁 Creating workspace structure..."
