@@ -29,6 +29,26 @@ cp -r temp-templates/azure-terraform/.claude/instructions/ ./.claude/instruction
 cp temp-templates/.env.template ./
 rm -rf temp-templates
 
+powershell:
+
+Copy-Item "temp-templates/azure-terraform/.devcontainer" -Destination "." -Recurse -Force
+New-Item -ItemType Directory -Path ".claude" -Force | Out-Null
+Copy-Item "temp-templates/.claude/settings.local.json" -Destination ".claude/" -Force
+Copy-Item "temp-templates/.claude/mcp.json" -Destination ".claude/" -Force
+
+New-Item -ItemType Directory -Path ".github/copilot" -Force | Out-Null
+Copy-Item "temp-templates/azure-terraform/.github/copilot-instructions.md" -Destination ".github/" -Force
+Copy-Item "temp-templates/azure-terraform/.github/copilot/*" -Destination ".github/copilot/" -Recurse -Force
+Copy-Item "temp-templates/azure-terraform/.editorconfig" -Destination "." -Force
+Copy-Item "temp-templates/azure-terraform/.vscode" -Destination "." -Recurse -Force
+Copy-Item "temp-templates/azure-terraform/CLAUDE.md" -Destination "." -Force
+
+New-Item -ItemType Directory -Path ".claude/instructions" -Force | Out-Null
+Copy-Item "temp-templates/azure-terraform/.claude/instructions/*" -Destination ".claude/instructions/" -Recurse -Force
+
+Copy-Item "temp-templates/.env.template" -Destination "." -Force
+Remove-Item "temp-templates" -Recurse -Force
+
 # Open in VS Code and rebuild container
 code .
 # Then: Ctrl+Shift+P → "Dev Containers: Rebuild Container"
