@@ -30,7 +30,7 @@ cp temp-templates/.env.template ./
 rm -rf temp-templates
 
 powershell:
-
+gh repo clone poorleno1/dev-container-templates temp-templates
 Copy-Item "temp-templates/azure-terraform/.devcontainer" -Destination "." -Recurse -Force
 New-Item -ItemType Directory -Path ".claude" -Force | Out-Null
 Copy-Item "temp-templates/.claude/settings.local.json" -Destination ".claude/" -Force
