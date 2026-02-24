@@ -96,6 +96,7 @@ When working on specific file types, reference these as needed:
 - Terraform: `.claude/instructions/terraform.md`
 - Azure Pipelines: `.claude/instructions/azure-pipelines.md`
 - PowerShell: `.claude/instructions/powershell.md`
+- Azure Devops Wiki: `.claude/instructions/azure-devops-wiki.md`
 
 **Usage:** `claude "help with this" @.claude/instructions/terraform.md @main.tf`
 
