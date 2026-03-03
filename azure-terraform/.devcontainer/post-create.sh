@@ -18,8 +18,8 @@ sudo apt-get install -y \
     vim \
     file
 
-echo "📦 Installing Claude CLI..."
-curl -fsSL https://claude.ai/install.sh | bash
+#echo "📦 Installing Claude CLI..."
+#curl -fsSL https://claude.ai/install.sh | bash
 
 # Set up PowerShell modules for Azure
 echo "📦 Installing PowerShell modules..."
@@ -30,32 +30,6 @@ pwsh -c "Install-Module -Name az.sql -Force -AllowClobber -Scope CurrentUser"
 pwsh -c "Install-Module -Name az.accounts -RequiredVersion 4.0.2 -Force -AllowClobber -Scope CurrentUser"
 pwsh -c "Install-Module -Name az.accounts -RequiredVersion 5.3.2 -Force -AllowClobber -Scope CurrentUser"
 
-# Install Terraform providers cache (speeds up terraform init)
-echo "🏗️ Pre-downloading common Terraform providers..."
-mkdir -p ~/.terraform.d/plugin-cache
-export TF_PLUGIN_CACHE_DIR="$HOME/.terraform.d/plugin-cache"
-
-# Create a temporary terraform configuration to download common providers
-cat > /tmp/providers.tf << 'EOF'
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~>3.0"
-    }
-    azuread = {
-      source  = "hashicorp/azuread"
-      version = "~>2.0"
-    }
-    random = {
-      source  = "hashicorp/random"
-      version = "~>3.0"
-    }
-  }
-}
-EOF
-
-cd /tmp && terraform init && cd - && rm -rf /tmp/.terraform /tmp/providers.tf
 
 # Set up Git configuration (if not already configured)
 if [ -z "$(git config --global user.name)" ]; then
@@ -64,57 +38,57 @@ if [ -z "$(git config --global user.name)" ]; then
     echo "   git config --global user.email 'your.email@example.com'"
 fi
 
-# Create useful aliases
-echo "🔧 Setting up aliases..."
-cat >> ~/.bashrc << 'EOF'
+# # Create useful aliases and environment variable loading
+# echo "🔧 Setting up aliases and environment variables..."
+# cat >> ~/.bashrc << 'EOF'
 
-# Azure and Terraform aliases
-alias tf='terraform'
-alias tfi='terraform init'
-alias tfp='terraform plan'
-alias tfa='terraform apply'
-alias tfd='terraform destroy'
-alias tfv='terraform validate'
-alias tff='terraform fmt'
+# Load environment variables from .env file (for AI agents and MCP servers)
+# if [ -f "/workspaces/Infrastructure/.env" ]; then
+#     set -a  # Export all variables
+#     source "/workspaces/Infrastructure/.env"
+#     set +a  # Stop exporting
+# fi
 
-alias az-login='az login --use-device-code'
-alias az-accounts='az account list --output table'
-alias az-set='az account set --subscription'
+echo "🔧 Checking Azure CLI version..."
+az --version
 
-# Useful shortcuts
-alias ll='ls -la'
-alias la='ls -la'
-alias ..='cd ..'
-alias ...='cd ../..'
+az config set extension.use_dynamic_install=yes_without_prompt
+# or, if you prefer confirmation:
+az config set extension.use_dynamic_install=yes_prompt
+az extension add --name azure-devops
+
+
+# Add to PowerShell profile
+echo "🔧 Setting up PowerShell profile..."
+mkdir -p ~/.config/powershell
+cat >> ~/.config/powershell/Microsoft.PowerShell_profile.ps1 << 'EOF'
+
+# Load environment variables from .env file (for AI agents and MCP servers)
+$envFile = "/workspaces/Infrastructure/.env"
+if (Test-Path $envFile) {
+    Get-Content $envFile | ForEach-Object {
+        if ($_ -match '^\s*([^#][^=]+)=(.*)$') {
+            $name = $matches[1].Trim()
+            $value = $matches[2].Trim()
+            [System.Environment]::SetEnvironmentVariable($name, $value, [System.EnvironmentVariableTarget]::Process)
+        }
+    }
+}
 EOF
 
-# Set up Terraform CLI configuration
-echo "🔧 Setting up Terraform configuration..."
-mkdir -p ~/.terraform.d
-cat > ~/.terraform.d/terraform.rc << 'EOF'
-plugin_cache_dir = "$HOME/.terraform.d/plugin-cache"
-disable_checkpoint = true
-EOF
 
-# Copy SSH config if mounted
-if [ -d "/home/vscode/.ssh-host" ]; then
-    echo "🔐 Setting up SSH configuration..."
-    cp -r /home/vscode/.ssh-host /home/vscode/.ssh
-    chmod 700 /home/vscode/.ssh
-    chmod 600 /home/vscode/.ssh/* 2>/dev/null || true
-fi
+# # Copy SSH config if mounted
+# if [ -d "/home/vscode/.ssh-host" ]; then
+#     echo "🔐 Setting up SSH configuration..."
+#     cp -r /home/vscode/.ssh-host /home/vscode/.ssh
+#     chmod 700 /home/vscode/.ssh
+#     chmod 600 /home/vscode/.ssh/* 2>/dev/null || true
+# fi
 
 # Set up Azure CLI extensions
 echo "🔧 Installing Azure CLI extensions..."
-az extension add --name azure-devops 2>/dev/null || true
-az extension add --name application-insights 2>/dev/null || true
-az extension add --name costmanagement 2>/dev/null || true
-
-# Create workspace directories
-echo "📁 Creating workspace structure..."
-mkdir -p /workspaces/scripts
-mkdir -p /workspaces/docs
-mkdir -p /workspaces/.terraform.d
+az extension add --name azure-devops --system 2>/dev/null || true
+az extension add --name application-insights --system 2>/dev/null || true
 
 echo "✅ Post-creation setup completed!"
 echo ""
