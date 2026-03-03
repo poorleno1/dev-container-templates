@@ -222,17 +222,6 @@ setup_from_template() {
             print_success "Copied VS Code settings"
         fi
 
-        # Copy Claude Code instructions if present
-        if [ -f "$temp_dir/$template_name/CLAUDE.md" ]; then
-            cp "$temp_dir/$template_name/CLAUDE.md" "$target_dir/"
-            print_success "Copied CLAUDE.md"
-        fi
-        if [ -d "$temp_dir/$template_name/.claude/instructions" ]; then
-            mkdir -p "$target_dir/.claude/instructions"
-            cp -r "$temp_dir/$template_name/.claude/instructions/" "$target_dir/.claude/instructions/"
-            print_success "Copied Claude Code language-specific instructions"
-        fi
-
         # Clean up
         rm -rf "$temp_dir"
 
@@ -244,8 +233,6 @@ setup_from_template() {
         echo "📁 Files created:"
         ls -la "$target_dir/.devcontainer"
         [ -d "$target_dir/.github" ] && echo && ls -la "$target_dir/.github/"
-        [ -d "$target_dir/.claude/instructions" ] && echo && ls -la "$target_dir/.claude/instructions/"
-        [ -f "$target_dir/CLAUDE.md" ] && echo && echo "CLAUDE.md"
         [ -f "$target_dir/.editorconfig" ] && echo && echo ".editorconfig"
         [ -d "$target_dir/.vscode" ] && echo && ls -la "$target_dir/.vscode/"
         

@@ -22,10 +22,6 @@ cp temp-templates/azure-terraform/.github/copilot-instructions.md ./.github/
 cp -r temp-templates/azure-terraform/.github/copilot/ ./.github/copilot/
 cp temp-templates/azure-terraform/.editorconfig ./
 cp -r temp-templates/azure-terraform/.vscode ./
-cp temp-templates/azure-terraform/CLAUDE.md ./
-mkdir -p .claude/instructions
-cp -r temp-templates/azure-terraform/.claude/instructions/ ./.claude/instructions/
-
 cp temp-templates/.env.template ./
 rm -rf temp-templates
 
@@ -41,11 +37,6 @@ Copy-Item "temp-templates/azure-terraform/.github/copilot-instructions.md" -Dest
 Copy-Item "temp-templates/azure-terraform/.github/copilot/*" -Destination ".github/copilot/" -Recurse -Force
 Copy-Item "temp-templates/azure-terraform/.editorconfig" -Destination "." -Force
 Copy-Item "temp-templates/azure-terraform/.vscode" -Destination "." -Recurse -Force
-Copy-Item "temp-templates/azure-terraform/CLAUDE.md" -Destination "." -Force
-
-New-Item -ItemType Directory -Path ".claude/instructions" -Force | Out-Null
-Copy-Item "temp-templates/azure-terraform/.claude/instructions/*" -Destination ".claude/instructions/" -Recurse -Force
-
 Copy-Item "temp-templates/.env.template" -Destination "." -Force
 Remove-Item "temp-templates" -Recurse -Force
 
@@ -147,9 +138,6 @@ cp .env.template .env
    cp -r dev-container-templates/azure-terraform/.github/copilot/ /your/project/.github/copilot/
    cp dev-container-templates/azure-terraform/.editorconfig /your/project/
    cp -r dev-container-templates/azure-terraform/.vscode /your/project/
-   cp dev-container-templates/azure-terraform/CLAUDE.md /your/project/
-   mkdir -p /your/project/.claude/instructions
-   cp -r dev-container-templates/azure-terraform/.claude/instructions/ /your/project/.claude/instructions/
    ```
 
 3. **Customize as needed** (edit `devcontainer.json`, add scripts, etc.)
@@ -191,7 +179,6 @@ rm -rf temp-gist
 - **Claude Code settings** - Pre-configured auto-approve patterns for safe commands
 - **MCP servers** - Terraform, Playwright, and Microsoft Learn integrations
 - **GitHub Copilot instructions** - Terraform, PowerShell, and Azure Pipelines coding guidelines
-- **Claude Code instructions** - Equivalent guidelines optimized for Claude Code (`CLAUDE.md` + `.claude/instructions/`)
 - **EditorConfig + VS Code settings** - Consistent formatting across editors
 - **Common utilities** - git, curl, wget, jq, tree, etc.
 
@@ -216,14 +203,8 @@ azure-terraform/
 │       ├── terraform.md         # Terraform-specific Copilot instructions
 │       ├── powershell.md        # PowerShell-specific Copilot instructions
 │       └── azure-pipelines.md   # Azure Pipelines Copilot instructions
-├── .claude/
-│   └── instructions/
-│       ├── terraform.md         # Terraform guidelines for Claude Code
-│       ├── powershell.md        # PowerShell guidelines for Claude Code
-│       └── azure-pipelines.md   # Azure Pipelines guidelines for Claude Code
 ├── .vscode/
 │   └── settings.json            # VS Code workspace settings
-├── CLAUDE.md                    # Claude Code main instructions
 └── .editorconfig                # Editor formatting rules
 ```
 
@@ -242,12 +223,15 @@ Files in `.github/` are automatically picked up by GitHub Copilot:
 
 ### Claude Code Instructions
 
-Files in `CLAUDE.md` and `.claude/instructions/` are automatically picked up by Claude Code:
+Claude Code instructions are **not** copied from this template. Instead they come from your global `~/.claude/` configuration, which is automatically available inside the dev container because the home folder is mounted.
 
-- `CLAUDE.md` — Main entry point with global principles and references to sub-files
-- `.claude/instructions/terraform.md` — Terraform guidelines (same content, optimized for Claude Code)
-- `.claude/instructions/powershell.md` — PowerShell guidelines
-- `.claude/instructions/azure-pipelines.md` — Azure Pipelines guidelines
+The global config provides:
+- `~/.claude/CLAUDE.md` — Working style, principles, and documentation standards
+- `~/.claude/rules/terraform.md` — Terraform rules, auto-loaded when editing `.tf`/`.tfvars` files
+- `~/.claude/rules/powershell.md` — PowerShell rules, auto-loaded when editing `.ps1`/`.psm1`/`.psd1` files
+- `~/.claude/rules/azure-pipelines.md` — Pipeline rules, auto-loaded when editing `azure-pipelines.yml`
+
+After setting up a new project, run `claude /init` inside the project to generate a project-specific `CLAUDE.md` with repo-specific commands and architecture notes.
 
 ### Editor Configuration
 

@@ -30,12 +30,15 @@ gh repo clone poorleno1/dev-container-templates temp-templates
 cp -r temp-templates/azure-terraform/.devcontainer ./
 mkdir -p .claude
 cp temp-templates/.claude/settings.local.json ./.claude/
+cp temp-templates/.claude/mcp.json ./.claude/
 
 # Cleanup and rebuild
 rm -rf temp-templates
 code .
 # Ctrl+Shift+P → "Dev Containers: Rebuild Container"
 ```
+
+> **Note:** Global Claude Code instructions (`CLAUDE.md`, language rules) are not copied from the template. They come from your `~/.claude/` directory, which is mounted into the container automatically via the home folder mount. Run `claude /init` in your project after setup to generate a project-specific `CLAUDE.md`.
 
 ### Method 2: Manual Download
 
