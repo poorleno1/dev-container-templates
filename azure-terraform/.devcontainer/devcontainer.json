@@ -37,7 +37,8 @@
     // Create .env from .env.template: cp .env.template .env
     "runArgs": [
         "--env-file",
-        "${localWorkspaceFolder}/.env"
+        "${localWorkspaceFolder}/.env",
+        "--cap-add=SYS_ADMIN"
     ],
     // Mount SSH keys for secure Git operations (cross-platform: uses HOME on macOS/Linux, USERPROFILE on Windows)
     "mounts": [
