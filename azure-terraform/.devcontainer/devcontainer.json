@@ -48,7 +48,7 @@
             "type": "bind"
         },
         {
-            "source": "${localEnv:HOME}${localEnv:USERPROFILE}/.claude",
+            "source": "${localEnv:CLAUDE_HOME}",
             "target": "/home/vscode/.claude",
             "type": "bind"
         }
