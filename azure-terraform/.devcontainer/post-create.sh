@@ -18,6 +18,11 @@ sudo apt-get install -y \
     vim \
     file
 
+# Install Playwright system dependencies and Chromium browser
+echo "🎭 Installing Playwright dependencies..."
+npx -y playwright@latest install-deps chromium
+npx -y playwright@latest install chromium
+
 #echo "📦 Installing Claude CLI..."
 #curl -fsSL https://claude.ai/install.sh | bash
 
