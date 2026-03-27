@@ -16,7 +16,8 @@ sudo apt-get install -y \
     htop \
     nano \
     vim \
-    file
+    file \
+    dnsutils
 
 # Install Playwright system dependencies and Chromium browser
 echo "🎭 Installing Playwright dependencies..."
