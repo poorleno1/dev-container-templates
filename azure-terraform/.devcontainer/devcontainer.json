@@ -73,6 +73,8 @@
                 "HashiCorp.terraform",
                 "ms-vscode.azurecli",
                 "Anthropic.claude-code",
+                "GitHub.copilot",
+                "GitHub.copilot-chat",
                 "ms-vscode.vscode-json"
             ]
         }
