@@ -7,6 +7,8 @@ This is a **template repository** providing GitHub Copilot configuration for Ter
 - [.github/copilot/terraform.md](copilot/terraform.md) - Terraform-specific instructions (Azure-focused, Terraform 1.5.7)
 - [.github/copilot/powershell.md](copilot/powershell.md) - PowerShell-specific instructions
 - [.github/copilot/azure-pipelines.md](copilot/azure-pipelines.md) - Azure DevOps pipeline instructions (Terraform deployments)
+- [.github/copilot/azure.md](copilot/azure.md) - Azure and Azure DevOps authentication/access rules
+- [.github/copilot/azure-devops-wiki.md](copilot/azure-devops-wiki.md) - Azure DevOps wiki authoring and publishing workflow
 - [.editorconfig](../.editorconfig) - Formatting rules (2-space for Terraform/YAML, 4-space for PowerShell)
 - [.vscode/settings.json](../.vscode/settings.json) - VS Code workspace settings
 - [examples/](../examples/) - Example README files demonstrating the patterns
@@ -57,3 +59,4 @@ This is a **template repository** providing GitHub Copilot configuration for Ter
 - Never hardcode secrets—use environment variables or Key Vault
 - Service Principal credentials: document but never commit actual values
 - Validate all inputs; follow least privilege
+- Use Azure/Azure DevOps authentication from environment variables only; do not hardcode auth values in scripts or YAML
