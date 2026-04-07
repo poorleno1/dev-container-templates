@@ -39,6 +39,25 @@ else
     echo "No Azure DevOps credentials found - skipping configuration"
 fi
 
+# Wire shared Copilot prompts into VS Code Server user directory via symlink.
+# We cannot bind-mount directly into .vscode-server/ at container creation time because
+# Docker would create intermediate directories (data/, User/) owned by root before VS Code
+# Server installs itself, breaking the vscode user's write access and crashing the container.
+# By mounting to a neutral path (~/.copilot-prompts) and symlinking here (after VS Code Server
+# is already installed and owns .vscode-server/data/User/), we avoid that race entirely.
+COPILOT_PROMPTS_DIR="$HOME/.vscode-server/data/User/prompts"
+COPILOT_MOUNT="$HOME/.copilot-prompts"
+if [ -d "$COPILOT_MOUNT" ]; then
+    mkdir -p "$HOME/.vscode-server/data/User"
+    # Remove existing dir (not symlink) so ln -sfn can create the link cleanly
+    [ -d "$COPILOT_PROMPTS_DIR" ] && [ ! -L "$COPILOT_PROMPTS_DIR" ] && rm -rf "$COPILOT_PROMPTS_DIR"
+    ln -sfn "$COPILOT_MOUNT" "$COPILOT_PROMPTS_DIR"
+    echo "Copilot prompts symlinked: $COPILOT_PROMPTS_DIR -> $COPILOT_MOUNT"
+else
+    mkdir -p "$COPILOT_PROMPTS_DIR"
+    echo "COPILOT_PROMPTS_HOME not mounted; prompts are container-local at: $COPILOT_PROMPTS_DIR"
+fi
+
 # Apply MCP server configuration from persisted file in mounted ~/.claude directory
 if [ -f ~/.claude/mcp-servers.json ]; then
     python3 -c "
