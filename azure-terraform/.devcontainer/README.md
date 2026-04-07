@@ -5,6 +5,7 @@ This dev container provides a complete development environment for Azure infrast
 ## 🚀 What's Included
 
 ### Tools & Runtimes
+
 - **Terraform** 1.7.0 (configurable version)
 - **Azure CLI** (latest)
 - **PowerShell Core** (latest)
@@ -13,6 +14,7 @@ This dev container provides a complete development environment for Azure infrast
 - **Common utilities** (curl, wget, jq, tree, etc.)
 
 ### VS Code Extensions
+
 - Complete Azure extension pack
 - Terraform language support with validation
 - PowerShell extension
@@ -21,10 +23,12 @@ This dev container provides a complete development environment for Azure infrast
 - Docker support
 
 ### PowerShell Modules
+
 - **Az** module (Azure PowerShell)
 - **AzureAD** module
 
 ### Pre-configured Features
+
 - Terraform provider cache for faster `terraform init`
 - Useful aliases for common commands
 - Port forwarding for web development
@@ -39,24 +43,27 @@ This dev container provides a complete development environment for Azure infrast
    - Wait for container to build (first time takes a few minutes)
 
 2. **Authenticate with Azure**
+
    ```bash
    az login
    ```
 
 3. **Configure Git** (if not already done)
+
    ```bash
    git config --global user.name "Your Name"
    git config --global user.email "your.email@example.com"
    ```
 
 4. **Test Your Setup**
+
    ```bash
    # Test Terraform
    terraform --version
-   
+
    # Test Azure CLI
    az account list
-   
+
    # Test PowerShell with Azure
    pwsh -c "Get-Module -ListAvailable Az"
    ```
@@ -69,7 +76,7 @@ The container includes these pre-configured aliases:
 # Terraform shortcuts
 tf          # terraform
 tfi         # terraform init
-tfp         # terraform plan  
+tfp         # terraform plan
 tfa         # terraform apply
 tfd         # terraform destroy
 tfv         # terraform validate
@@ -101,8 +108,52 @@ ll          # ls -la
 
 ## 🔧 Customization
 
+### Shared Copilot Prompts Across Dev Containers
+
+This repository supports a shared host folder for GitHub Copilot prompt files so multiple dev containers can reuse the same prompt library.
+
+1. Create a host directory for shared prompts.
+2. Set environment variable `COPILOT_PROMPTS_HOME` on your host to that directory.
+3. Rebuild or reopen the dev container.
+
+The host directory is mounted to a neutral container path:
+
+```text
+/home/vscode/.copilot-prompts
+```
+
+On every container start, `post-start.sh` creates a symlink from there to the path Copilot reads:
+
+```text
+/home/vscode/.vscode-server/data/User/prompts -> /home/vscode/.copilot-prompts
+```
+
+> **Why not mount directly into `.vscode-server/`?**
+> Docker creates bind mount target directories owned by root before VS Code Server installs itself.
+> This corrupts the permissions of `.vscode-server/data/User/` and crashes the container.
+> Mounting to a neutral path and symlinking after VS Code Server is ready avoids this entirely.
+
+Recommended host paths:
+
+- Linux/macOS: `$HOME/.copilot/prompts`
+- Windows (PowerShell): `$env:USERPROFILE\\.copilot\\prompts`
+
+Example host setup:
+
+```bash
+mkdir -p "$HOME/.copilot/prompts"
+export COPILOT_PROMPTS_HOME="$HOME/.copilot/prompts"
+```
+
+```powershell
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.copilot\prompts"
+[Environment]::SetEnvironmentVariable("COPILOT_PROMPTS_HOME", "$env:USERPROFILE\.copilot\prompts", "User")
+```
+
 ### Change Terraform Version
+
 Edit `devcontainer.json`:
+
 ```json
 "terraform": {
     "version": "1.6.0"  // Specify your version
@@ -110,7 +161,9 @@ Edit `devcontainer.json`:
 ```
 
 ### Add More Extensions
+
 Add to the `extensions` array in `devcontainer.json`:
+
 ```json
 "extensions": [
     "your.extension.id"
@@ -118,7 +171,9 @@ Add to the `extensions` array in `devcontainer.json`:
 ```
 
 ### Environment Variables
+
 Add to `containerEnv` in `devcontainer.json`:
+
 ```json
 "containerEnv": {
     "YOUR_VARIABLE": "your-value"
@@ -130,11 +185,13 @@ Add to `containerEnv` in `devcontainer.json`:
 The container supports multiple authentication methods:
 
 1. **Interactive Login** (recommended for development)
+
    ```bash
    az login
    ```
 
 2. **Device Code Login** (for restricted environments)
+
    ```bash
    az login --use-device-code
    ```
@@ -147,6 +204,7 @@ The container supports multiple authentication methods:
 ## 🐳 Docker Integration
 
 The container uses Docker-outside-of-Docker (DooD), allowing you to:
+
 - Build and run containers
 - Use Docker Compose
 - Deploy containerized applications to Azure
@@ -160,23 +218,26 @@ The container uses Docker-outside-of-Docker (DooD), allowing you to:
 ## 🔍 Troubleshooting
 
 ### Container won't start
+
 - Ensure Docker Desktop is running
 - Check you have enough system resources
 - Try rebuilding: `Ctrl+Shift+P` → "Dev Containers: Rebuild Container"
 
 ### Azure authentication issues
+
 - Clear Azure CLI cache: `az account clear`
 - Re-authenticate: `az login`
 - Check your tenant/subscription: `az account show`
 
 ### Terraform provider issues
+
 - Clear provider cache: `rm -rf ~/.terraform.d/plugin-cache/*`
 - Reinitialize: `terraform init -upgrade`
 
 ## 📝 Notes
 
 - Your Azure CLI configuration is mounted from your host machine
-- SSH configuration is copied from host (if available)  
+- SSH configuration is copied from host (if available)
 - Terraform provider cache speeds up `terraform init`
 - Extensions are automatically installed on container creation
 - All tools are pre-configured with sensible defaults
