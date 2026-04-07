@@ -73,9 +73,12 @@
                 "HashiCorp.terraform",
                 "ms-vscode.azurecli",
                 "Anthropic.claude-code",
-                "GitHub.copilot",
+                "emmanuelbeziat.vscode-great-icons",
+                "ms-azure-devops.azure-pipelines",
+                "ms-azuretools.vscode-azureterraform",
                 "GitHub.copilot-chat",
-                "ms-vscode.vscode-json"
+                "ms-vscode.vscode-json",
+                "esbenp.prettier-vscode"
             ]
         }
     }
