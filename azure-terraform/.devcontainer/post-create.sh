@@ -58,6 +58,21 @@ fi
 echo "🔧 Checking Azure CLI version..."
 az --version
 
+# Log in to Azure using Service Principal environment variables
+echo "🔐 Logging in to Azure..."
+if [ -n "$ARM_CLIENT_ID" ] && [ -n "$ARM_CLIENT_SECRET" ] && [ -n "$ARM_TENANT_ID" ]; then
+    az login --service-principal \
+        --username "$ARM_CLIENT_ID" \
+        --password "$ARM_CLIENT_SECRET" \
+        --tenant "$ARM_TENANT_ID"
+    if [ -n "$ARM_SUBSCRIPTION_ID" ]; then
+        az account set --subscription "$ARM_SUBSCRIPTION_ID"
+    fi
+    echo "✅ Azure login successful."
+else
+    echo "⚠️  Azure login skipped: ARM_CLIENT_ID, ARM_CLIENT_SECRET, or ARM_TENANT_ID is not set."
+fi
+
 az config set extension.use_dynamic_install=yes_without_prompt
 # or, if you prefer confirmation:
 az config set extension.use_dynamic_install=yes_prompt
@@ -69,18 +84,18 @@ echo "🔧 Setting up PowerShell profile..."
 mkdir -p ~/.config/powershell
 cat >> ~/.config/powershell/Microsoft.PowerShell_profile.ps1 << 'EOF'
 
-# Load environment variables from .env file (for AI agents and MCP servers)
-$envFile = "/workspaces/Infrastructure/.env"
-if (Test-Path $envFile) {
-    Get-Content $envFile | ForEach-Object {
-        if ($_ -match '^\s*([^#][^=]+)=(.*)$') {
-            $name = $matches[1].Trim()
-            $value = $matches[2].Trim()
-            [System.Environment]::SetEnvironmentVariable($name, $value, [System.EnvironmentVariableTarget]::Process)
-        }
-    }
-}
-EOF
+# # Load environment variables from .env file (for AI agents and MCP servers)
+# $envFile = "/workspaces/Infrastructure/.env"
+# if (Test-Path $envFile) {
+#     Get-Content $envFile | ForEach-Object {
+#         if ($_ -match '^\s*([^#][^=]+)=(.*)$') {
+#             $name = $matches[1].Trim()
+#             $value = $matches[2].Trim()
+#             [System.Environment]::SetEnvironmentVariable($name, $value, [System.EnvironmentVariableTarget]::Process)
+#         }
+#     }
+# }
+# EOF
 
 
 # # Copy SSH config if mounted
