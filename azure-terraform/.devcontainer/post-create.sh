@@ -30,7 +30,7 @@ npx -y playwright@latest install chromium
 # Set up PowerShell modules for Azure
 echo "📦 Installing PowerShell modules..."
 #pwsh -c "Install-Module -Name Az -Force -AllowClobber -Scope CurrentUser"
-pwsh -c "Install-Module -Name AzureAD -Force -AllowClobber -Scope CurrentUser"
+#pwsh -c "Install-Module -Name AzureAD -Force -AllowClobber -Scope CurrentUser"
 pwsh -c "Install-Module -Name sqlserver -Force -AllowClobber -Scope CurrentUser"
 pwsh -c "Install-Module -Name az.sql -Force -AllowClobber -Scope CurrentUser"
 pwsh -c "Install-Module -Name az.accounts -RequiredVersion 4.0.2 -Force -AllowClobber -Scope CurrentUser"
