@@ -112,6 +112,8 @@ cat >> ~/.config/powershell/Microsoft.PowerShell_profile.ps1 << 'EOF'
 echo "🔧 Installing Azure CLI extensions..."
 az extension add --name azure-devops --system 2>/dev/null || true
 az extension add --name application-insights --system 2>/dev/null || true
+az config set extension.use_dynamic_install=yes_without_prompt
+az config set extension.dynamic_install_allow_preview=true
 
 echo "✅ Post-creation setup completed!"
 echo ""
