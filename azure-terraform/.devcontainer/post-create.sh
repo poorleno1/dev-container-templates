@@ -57,11 +57,13 @@ fi
 
 echo "🔧 Checking Azure CLI version..."
 az --version
+az config set core.login_experience_v2=off
+az config set core.enable_broker_on_windows=false
 
 # Log in to Azure using Service Principal environment variables
 echo "🔐 Logging in to Azure..."
 if [ -n "$ARM_CLIENT_ID" ] && [ -n "$ARM_CLIENT_SECRET" ] && [ -n "$ARM_TENANT_ID" ]; then
-    az login --service-principal \
+        az login --service-principal \
         --username "$ARM_CLIENT_ID" \
         --password "$ARM_CLIENT_SECRET" \
         --tenant "$ARM_TENANT_ID"
