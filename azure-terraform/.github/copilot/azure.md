@@ -34,6 +34,27 @@ Verification command:
 az devops project list --organization "$AZURE_DEVOPS_ORG_URL"
 ```
 
+## Azure DevOps Work Item Comment Formatting
+
+When adding structured comments to Azure Boards work items, prefer the Work Item Comments API with explicit format.
+
+- Default: use `format=markdown` for readable, lightweight structured comments.
+- Fallback: use `format=html` only when markdown cannot express required formatting.
+- Avoid `az boards work-item update --discussion` for structured comments, because it writes history text and may not render markdown as expected.
+
+Recommended command pattern:
+
+```bash
+az devops invoke \
+  --area wit --resource comments \
+  --route-parameters project=<project> workItemId=<id> \
+  --query-parameters "format=markdown" \
+  --http-method POST \
+  --in-file <json-body-file> \
+  --organization "$AZURE_DEVOPS_ORG_URL" \
+  --api-version "7.1-preview"
+```
+
 ## Azure DevOps Wiki Path Rules
 
 Browser URLs often use hyphenated page names, but CLI/API calls require the exact wiki path with spaces.
