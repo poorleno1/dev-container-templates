@@ -53,6 +53,7 @@ This is a **template repository** providing GitHub Copilot configuration for Ter
 
 - Every project needs a README.md with: Purpose, Prerequisites, Setup, Usage, Configuration
 - Store planning docs in `docs/` directory with timestamp naming: `docs/plan-{yyyy-MM-dd_hh-mm}.md`
+- For Azure DevOps wiki pages with diagrams, follow Mermaid authoring and render verification rules in `.github/copilot/azure-devops-wiki.md`.
 
 ## Security
 
