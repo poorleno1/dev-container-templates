@@ -34,6 +34,8 @@ Verification command:
 az devops project list --organization "$AZURE_DEVOPS_ORG_URL"
 ```
 
+If `AZURE_DEVOPS_ORG_URL` is not available in the current shell, pass `--organization "https://dev.azure.com/<org>"` explicitly on each command. Do not source `.env` files in automation.
+
 ## Azure DevOps Work Item Comment Formatting
 
 When adding structured comments to Azure Boards work items, prefer the Work Item Comments API with explicit format.
