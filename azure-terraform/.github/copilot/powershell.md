@@ -32,11 +32,11 @@ function Verb-Noun {
     param(
         [Parameter(Mandatory = $true)]
         [string]$RequiredParameter,
-        
+
         [Parameter(Mandatory = $false)]
         [int]$OptionalParameter = 0
     )
-    
+
     # Function logic here
 }
 ```
@@ -46,6 +46,12 @@ function Verb-Noun {
 - Implement proper error reporting with Write-Error
 - Use $ErrorActionPreference appropriately
 - Validate inputs at the beginning of functions
+
+## Automatic Variable Safety
+
+- Avoid variable names that collide with PowerShell automatic variables (for example `event`, `input`, `matches`, `args`).
+- Use explicit loop variable names like `$eventItem` instead of `$event`.
+- Treat PSScriptAnalyzer warnings about automatic variables as real correctness issues, not style-only warnings.
 
 ## Security Best Practices
 - Never store credentials in plain text
