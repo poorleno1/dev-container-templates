@@ -20,6 +20,73 @@ This is a **template repository** providing GitHub Copilot configuration for Ter
 3. **SRP** - One responsibility per component; split only when it simplifies
 4. **DRY** - Extract duplication last, after clarity is established
 
+## Working Style
+
+### Assumption Management
+
+Before implementing non-trivial infrastructure changes, state assumptions explicitly and give the user a chance to correct them.
+
+Use this pattern:
+
+```text
+ASSUMPTIONS:
+1. [assumption about requirements/constraints]
+2. [assumption about existing infrastructure]
+-> Correct me now or I'll proceed with these.
+```
+
+### Handle Confusion Immediately
+
+When requirements or current state are inconsistent:
+
+1. Stop and do not guess.
+2. Name the exact inconsistency.
+3. Ask the clarifying question or present tradeoffs.
+4. Wait for resolution before making changes.
+
+### Scope Discipline
+
+Touch only what was requested. Do not perform unrelated cleanup as a side effect.
+
+Avoid:
+
+- Removing comments or code you do not fully understand.
+- Deleting unused resources without explicit approval.
+- Refactoring adjacent modules unless requested.
+
+### Simplicity Check
+
+Before finishing, verify the result is the simplest acceptable solution.
+
+Quick checklist:
+
+- Can this be simpler?
+- Are these abstractions necessary now?
+- Is this the obvious, maintainable implementation?
+
+### Push Back When Needed
+
+If an approach has clear technical downsides:
+
+- Explain the concrete risk.
+- Propose a safer alternative.
+- Proceed with the user's decision if they explicitly choose it.
+
+### Change Summary Format
+
+After modifications, provide a concise summary using this structure:
+
+```text
+CHANGES MADE:
+- [file]: [what and why]
+
+INTENTIONALLY UNCHANGED:
+- [file]: [left alone because...]
+
+VERIFICATION NEEDED:
+- [risks or checks to run]
+```
+
 ## When Modifying Template Files
 
 - Keep language-specific details in `.github/copilot/{language}.md`, not here
