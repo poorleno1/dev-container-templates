@@ -51,6 +51,16 @@
             "source": "${localEnv:CLAUDE_HOME}",
             "target": "/home/vscode/.claude",
             "type": "bind"
+        },
+        {
+            "source": "${localEnv:COPILOT_HOME}/globalStorage",
+            "target": "/home/vscode/.copilot-globalStorage",
+            "type": "bind"
+        },
+        {
+            "source": "${localEnv:COPILOT_HOME}/workspaceStorage",
+            "target": "/home/vscode/.copilot-workspaceStorage",
+            "type": "bind"
         }
     ],
     // Configure tool-specific properties.
@@ -72,7 +82,6 @@
                 "ms-vscode.powershell",
                 "HashiCorp.terraform",
                 "ms-vscode.azurecli",
-                "Anthropic.claude-code",
                 "emmanuelbeziat.vscode-great-icons",
                 "ms-azure-devops.azure-pipelines",
                 "ms-azuretools.vscode-azureterraform",
