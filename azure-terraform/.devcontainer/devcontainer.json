@@ -14,10 +14,6 @@
         "ghcr.io/devcontainers/features/powershell:1": {
             "version": "latest"
         },
-        "ghcr.io/devcontainers/features/python:1": {
-            "version": "3.11",
-            "installTools": true
-        },
         "ghcr.io/devcontainers/features/github-cli:1": {},
         "ghcr.io/devcontainers/features/git:1": {
             "ppa": false,
@@ -84,7 +80,6 @@
                 "ms-vscode.azurecli",
                 "emmanuelbeziat.vscode-great-icons",
                 "ms-azure-devops.azure-pipelines",
-                "ms-azuretools.vscode-azureterraform",
                 "GitHub.copilot-chat",
                 "ms-vscode.vscode-json",
                 "esbenp.prettier-vscode"
