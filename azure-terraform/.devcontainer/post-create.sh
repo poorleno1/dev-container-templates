@@ -17,7 +17,9 @@ sudo apt-get install -y \
     nano \
     vim \
     file \
-    dnsutils
+    dnsutils \
+    python3 \
+    python3-pip
 
 # Install Playwright system dependencies and Chromium browser
 echo "🎭 Installing Playwright dependencies..."
@@ -97,7 +99,7 @@ cat >> ~/.config/powershell/Microsoft.PowerShell_profile.ps1 << 'EOF'
 #         }
 #     }
 # }
-# EOF
+EOF
 
 
 # # Copy SSH config if mounted
@@ -114,6 +116,27 @@ az extension add --name azure-devops --system 2>/dev/null || true
 az extension add --name application-insights --system 2>/dev/null || true
 az config set extension.use_dynamic_install=yes_without_prompt
 az config set extension.dynamic_install_allow_preview=true
+
+# Keep the remote VS Code UI minimal by removing unwanted extensions.
+echo "🧹 Removing unwanted VS Code extensions..."
+if command -v code >/dev/null 2>&1; then
+    for ext in \
+        dbaeumer.vscode-eslint \
+        ms-python.vscode-pylance \
+        ms-python.autopep8 \
+        ms-python.debugpy \
+        ms-python.vscode-python-envs \
+        Continue.continue \
+        saoudrizwan.continue \
+        ms-python.python
+    do
+        code --uninstall-extension "$ext" >/dev/null 2>&1 || true
+    done
+    # Retry python uninstall after dependent extensions are removed.
+    code --uninstall-extension ms-python.python >/dev/null 2>&1 || true
+else
+    echo "⚠️  VS Code CLI not found during post-create; skipping extension cleanup."
+fi
 
 echo "✅ Post-creation setup completed!"
 echo ""
