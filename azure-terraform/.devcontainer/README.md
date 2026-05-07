@@ -1,41 +1,49 @@
 # Azure Infrastructure Dev Container
 
-This dev container provides a complete development environment for Azure infrastructure projects using Terraform, PowerShell, and Azure CLI.
+This dev container provides a development environment for Azure infrastructure work using Terraform, PowerShell, Azure CLI, and GitHub CLI.
 
-## 🚀 What's Included
+## Current Configuration
 
-### Tools & Runtimes
+### Base Image and Features
 
-- **Terraform** 1.7.0 (configurable version)
-- **Azure CLI** (latest)
-- **PowerShell Core** (latest)
-- **Git** (latest)
-- **Docker** (outside of Docker - DooD)
-- **Common utilities** (curl, wget, jq, tree, etc.)
+- Base image: `mcr.microsoft.com/devcontainers/base:debian-12`
+- Features:
+  - `ghcr.io/devcontainers/features/common-utils:2`
+  - `ghcr.io/devcontainers/features/azure-cli:1`
+  - `ghcr.io/devcontainers/features/powershell:2.0.2` with runtime `latest`
+  - `ghcr.io/devcontainers/features/github-cli:1`
+  - `ghcr.io/devcontainers/features/git:1` with version `latest`
 
-### VS Code Extensions
+### Lifecycle Scripts
 
-- Complete Azure extension pack
-- Terraform language support with validation
-- PowerShell extension
-- Git and GitHub integration
-- YAML/JSON support
-- Docker support
+- `postCreateCommand`: `.devcontainer/post-create.sh`
+- `postStartCommand`: `.devcontainer/post-start.sh`
+- `postAttachCommand`: `.devcontainer/post-attach.sh`
 
-### PowerShell Modules
+### Mounted Paths
 
-- **Az** module (Azure PowerShell)
-- **AzureAD** module
+- Workspace env file is passed through `runArgs --env-file ${localWorkspaceFolder}/.env`
+- Host `.ssh` is mounted to `/home/vscode/.ssh`
+- Host `${localEnv:CLAUDE_HOME}` is mounted to `/home/vscode/.claude`
+- Host `${localEnv:COPILOT_HOME}/globalStorage` is mounted to `/home/vscode/.copilot-globalStorage`
+- Host `${localEnv:COPILOT_HOME}/workspaceStorage` is mounted to `/home/vscode/.copilot-workspaceStorage`
 
-### Pre-configured Features
+### VS Code Defaults (Container)
 
-- Terraform provider cache for faster `terraform init`
-- Useful aliases for common commands
-- Port forwarding for web development
-- Azure CLI extensions
-- SSH configuration mounting
+- Default terminal profile: `pwsh`
+- Terraform language server enabled
+- Terraform file associations for `*.tf` and `*.tfvars`
+- Installed extensions:
+  - `ms-vscode.powershell`
+  - `HashiCorp.terraform`
+  - `ms-vscode.azurecli`
+  - `ms-azure-devops.azure-pipelines`
+  - `GitHub.copilot-chat`
+  - `ms-vscode.vscode-json`
+  - `esbenp.prettier-vscode`
+  - `emmanuelbeziat.vscode-great-icons`
 
-## 🔧 Quick Start
+## Quick Start
 
 1. **Open in Dev Container**
    - Open VS Code in your project folder
@@ -64,123 +72,23 @@ This dev container provides a complete development environment for Azure infrast
    # Test Azure CLI
    az account list
 
-   # Test PowerShell with Azure
-   pwsh -c "Get-Module -ListAvailable Az"
+   # Test PowerShell modules installed by post-create
+   pwsh -c "Get-Module -ListAvailable az.accounts,az.sql,sqlserver"
    ```
 
-## 🛠️ Useful Aliases
-
-The container includes these pre-configured aliases:
-
-```bash
-# Terraform shortcuts
-tf          # terraform
-tfi         # terraform init
-tfp         # terraform plan
-tfa         # terraform apply
-tfd         # terraform destroy
-tfv         # terraform validate
-tff         # terraform fmt
-
-# Azure CLI shortcuts
-az-login    # az login --use-device-code
-az-accounts # az account list --output table
-az-set      # az account set --subscription
-
-# General shortcuts
-ll          # ls -la
-..          # cd ..
-...         # cd ../..
-```
-
-## 📁 Container Structure
+## Container Structure
 
 ```
 /workspaces/
 ├── .devcontainer/
 │   ├── devcontainer.json     # Main configuration
-│   ├── post-create.sh        # Setup script
+│   ├── post-create.sh        # Runs once on create
+│   ├── post-start.sh         # Runs on each start
+│   ├── post-attach.sh        # Runs on each attach
 │   └── README.md            # This file
-├── scripts/                 # Your automation scripts
-├── docs/                   # Documentation
-└── .terraform.d/           # Terraform configuration
 ```
 
-## 🔧 Customization
-
-### Shared Copilot Prompts Across Dev Containers
-
-This repository supports a shared host folder for GitHub Copilot prompt files so multiple dev containers can reuse the same prompt library.
-
-1. Create a host directory for shared prompts.
-2. Set environment variable `COPILOT_PROMPTS_HOME` on your host to that directory.
-3. Rebuild or reopen the dev container.
-
-The host directory is mounted to a neutral container path:
-
-```text
-/home/vscode/.copilot-prompts
-```
-
-On every container start, `post-start.sh` creates a symlink from there to the path Copilot reads:
-
-```text
-/home/vscode/.vscode-server/data/User/prompts -> /home/vscode/.copilot-prompts
-```
-
-> **Why not mount directly into `.vscode-server/`?**
-> Docker creates bind mount target directories owned by root before VS Code Server installs itself.
-> This corrupts the permissions of `.vscode-server/data/User/` and crashes the container.
-> Mounting to a neutral path and symlinking after VS Code Server is ready avoids this entirely.
-
-Recommended host paths:
-
-- Linux/macOS: `$HOME/.copilot/prompts`
-- Windows (PowerShell): `$env:USERPROFILE\\.copilot\\prompts`
-
-Example host setup:
-
-```bash
-mkdir -p "$HOME/.copilot/prompts"
-export COPILOT_PROMPTS_HOME="$HOME/.copilot/prompts"
-```
-
-```powershell
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.copilot\prompts"
-[Environment]::SetEnvironmentVariable("COPILOT_PROMPTS_HOME", "$env:USERPROFILE\.copilot\prompts", "User")
-```
-
-### Change Terraform Version
-
-Edit `devcontainer.json`:
-
-```json
-"terraform": {
-    "version": "1.6.0"  // Specify your version
-}
-```
-
-### Add More Extensions
-
-Add to the `extensions` array in `devcontainer.json`:
-
-```json
-"extensions": [
-    "your.extension.id"
-]
-```
-
-### Environment Variables
-
-Add to `containerEnv` in `devcontainer.json`:
-
-```json
-"containerEnv": {
-    "YOUR_VARIABLE": "your-value"
-}
-```
-
-## 🔐 Azure Authentication
+## Azure Authentication
 
 The container supports multiple authentication methods:
 
@@ -196,26 +104,24 @@ The container supports multiple authentication methods:
    az login --use-device-code
    ```
 
-3. **Service Principal** (for CI/CD)
+3. **Service Principal** (automatic during create/start when ARM variables are present)
    ```bash
    az login --service-principal -u <app-id> -p <password> --tenant <tenant>
    ```
 
-## 🐳 Docker Integration
-
-The container uses Docker-outside-of-Docker (DooD), allowing you to:
-
-- Build and run containers
-- Use Docker Compose
-- Deploy containerized applications to Azure
-
-## 📊 Resource Requirements
+## Resource Notes
 
 - **Minimum**: 4GB RAM, 2 CPUs
 - **Recommended**: 8GB RAM, 4 CPUs
-- **Complex scenarios**: 16GB+ RAM, 8 CPUs
 
-## 🔍 Troubleshooting
+## Notes
+
+- `post-create.sh` installs `tfenv` and Terraform versions `1.2.9` and `1.4.0`, then sets `1.2.9` as default.
+- `post-create.sh` also installs PowerShell modules `sqlserver`, `az.sql`, and two `az.accounts` versions.
+- `post-start.sh` links `~/.tfenv/bin` tools into `/usr/local/bin`, fixes SSH permissions, and applies Azure/Azure DevOps login configuration when environment variables are present.
+- `post-attach.sh` adds `~/.tfenv/bin` PATH lines idempotently to both `.bashrc` and `.zshrc`.
+
+## Troubleshooting
 
 ### Container won't start
 
@@ -234,12 +140,4 @@ The container uses Docker-outside-of-Docker (DooD), allowing you to:
 - Clear provider cache: `rm -rf ~/.terraform.d/plugin-cache/*`
 - Reinitialize: `terraform init -upgrade`
 
-## 📝 Notes
-
-- Your Azure CLI configuration is mounted from your host machine
-- SSH configuration is copied from host (if available)
-- Terraform provider cache speeds up `terraform init`
-- Extensions are automatically installed on container creation
-- All tools are pre-configured with sensible defaults
-
-Happy coding! 🎉
+Happy coding.
