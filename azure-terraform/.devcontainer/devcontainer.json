@@ -11,7 +11,7 @@
             "nonFreePackages": "true"
         },
         "ghcr.io/devcontainers/features/azure-cli:1": {},
-        "ghcr.io/devcontainers/features/powershell:1": {
+        "ghcr.io/devcontainers/features/powershell:2.0.2": {
             "version": "latest"
         },
         "ghcr.io/devcontainers/features/github-cli:1": {},
@@ -22,16 +22,15 @@
     },
     // Ensure .env file exists before container start (copies from template if missing)
     //"initializeCommand": "bash -c '[ -f .env ] || cp .env.template .env'",
-    "postCreateCommand": "bash -c 'sudo chsh vscode -s \"$(which pwsh)\" && git config --global core.autocrlf false && git config --global core.safecrlf warn && git config --global core.filemode false && git clone --depth=1 https://github.com/tfutils/tfenv.git ~/.tfenv && ~/.tfenv/bin/tfenv install 1.2.9 && ~/.tfenv/bin/tfenv install 1.4.0 && ~/.tfenv/bin/tfenv use 1.2.9 && bash .devcontainer/post-create.sh'",
+    "postCreateCommand": "bash .devcontainer/post-create.sh",
     // "postStartCommand": "bash -c 'for f in ~/.tfenv/bin/*; do [ -f /usr/local/bin/$(basename $f) ] || sudo ln -s $f /usr/local/bin/$(basename $f); done && chmod 700 ~/.ssh && chmod 600 ~/.ssh/* && chmod 644 ~/.ssh/*.pub 2>/dev/null || true && if [ -n \"$ARM_CLIENT_ID\" ] && [ -n \"$ARM_CLIENT_SECRET\" ] && [ -n \"$ARM_TENANT_ID\" ]; then az login --service-principal -u \"$ARM_CLIENT_ID\" -p \"$ARM_CLIENT_SECRET\" --tenant \"$ARM_TENANT_ID\" && echo \"Logged in to Azure with service principal\" && if [ -n \"$ARM_SUBSCRIPTION_ID\" ]; then az account set --subscription \"$ARM_SUBSCRIPTION_ID\"; fi; else echo \"No Azure SP credentials found - use az login manually\"; fi'",
     "postStartCommand": "bash .devcontainer/post-start.sh",
-    "postAttachCommand": "bash -c 'echo \"export PATH=\\\"$HOME/.tfenv/bin:\\$PATH\\\"\" >> ~/.bashrc && echo \"export PATH=\\\"$HOME/.tfenv/bin:\\$PATH\\\"\" >> ~/.zshrc'",
+    "postAttachCommand": "bash .devcontainer/post-attach.sh",
     // Load Azure Service Principal credentials and other secrets from .env file
     // Create .env from .env.template: cp .env.template .env
     "runArgs": [
         "--env-file",
-        "${localWorkspaceFolder}/.env",
-        "--cap-add=SYS_ADMIN"
+        "${localWorkspaceFolder}/.env"
     ],
     // Mount SSH keys for secure Git operations (cross-platform: uses HOME on macOS/Linux, USERPROFILE on Windows)
     "mounts": [
