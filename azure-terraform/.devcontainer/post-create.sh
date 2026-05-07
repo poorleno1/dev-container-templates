@@ -1,7 +1,29 @@
 #!/bin/bash
+set -euo pipefail
 
 # Post-creation script for Azure Infrastructure Dev Container
 echo "🚀 Setting up Azure Infrastructure Development Environment..."
+
+# Keep PowerShell as the vscode user's login shell.
+current_shell="$(getent passwd vscode | cut -d: -f7)"
+pwsh_path="$(which pwsh)"
+if [ "$current_shell" != "$pwsh_path" ]; then
+    sudo chsh vscode -s "$pwsh_path"
+fi
+
+# Normalize Git behavior for the mounted workspace.
+git config --global core.autocrlf false
+git config --global core.safecrlf warn
+git config --global core.filemode false
+
+# Install tfenv once, then ensure required Terraform versions are present.
+if [ ! -d "$HOME/.tfenv" ]; then
+    git clone --depth=1 https://github.com/tfutils/tfenv.git "$HOME/.tfenv"
+fi
+
+"$HOME/.tfenv/bin/tfenv" install 1.2.9
+"$HOME/.tfenv/bin/tfenv" install 1.4.0
+"$HOME/.tfenv/bin/tfenv" use 1.2.9
 
 # Update package lists
 sudo apt-get update
@@ -56,17 +78,26 @@ fi
 
 echo "🔧 Checking Azure CLI version..."
 az --version
+
+# Keep Azure CLI and installed extensions current in non-interactive builds.
+# Set AZ_UPGRADE_ON_CREATE=false to skip this during container creation.
+if [ "${AZ_UPGRADE_ON_CREATE:-true}" = "true" ]; then
+    echo "⬆️  Upgrading Azure CLI and extensions..."
+    az upgrade --all --yes || echo "⚠️  Azure CLI upgrade failed; continuing with current version."
+    az --version
+fi
+
 az config set core.login_experience_v2=off
 az config set core.enable_broker_on_windows=false
 
 # Log in to Azure using Service Principal environment variables
 echo "🔐 Logging in to Azure..."
-if [ -n "$ARM_CLIENT_ID" ] && [ -n "$ARM_CLIENT_SECRET" ] && [ -n "$ARM_TENANT_ID" ]; then
+if [ -n "${ARM_CLIENT_ID:-}" ] && [ -n "${ARM_CLIENT_SECRET:-}" ] && [ -n "${ARM_TENANT_ID:-}" ]; then
         az login --service-principal \
         --username "$ARM_CLIENT_ID" \
         --password "$ARM_CLIENT_SECRET" \
         --tenant "$ARM_TENANT_ID"
-    if [ -n "$ARM_SUBSCRIPTION_ID" ]; then
+    if [ -n "${ARM_SUBSCRIPTION_ID:-}" ]; then
         az account set --subscription "$ARM_SUBSCRIPTION_ID"
     fi
     echo "✅ Azure login successful."
@@ -75,9 +106,6 @@ else
 fi
 
 az config set extension.use_dynamic_install=yes_without_prompt
-# or, if you prefer confirmation:
-az config set extension.use_dynamic_install=yes_prompt
-az extension add --name azure-devops
 
 
 # Add to PowerShell profile
