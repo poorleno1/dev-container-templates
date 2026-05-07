@@ -68,7 +68,13 @@
                 "files.associations": {
                     "*.tf": "terraform",
                     "*.tfvars": "terraform"
-                }
+                },
+                "settingsSync.ignoredExtensions": [
+                    "ms-azuretools.vscode-azureterraform",
+                    "cweijan.vscode-redis-client",
+                    "dunn.redis",
+                    "dbaeumer.vscode-eslint"
+                ]
             },
             // Add the IDs of extensions you want installed when the container is created.
             "extensions": [
