@@ -19,12 +19,9 @@ sudo apt-get install -y \
     file \
     dnsutils \
     python3 \
-    python3-pip
+    python3-pip \
+    ripgrep
 
-# Install Playwright system dependencies and Chromium browser
-echo "🎭 Installing Playwright dependencies..."
-npx -y playwright@latest install-deps chromium
-npx -y playwright@latest install chromium
 
 #echo "📦 Installing Claude CLI..."
 #curl -fsSL https://claude.ai/install.sh | bash
