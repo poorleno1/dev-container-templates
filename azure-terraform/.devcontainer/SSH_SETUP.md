@@ -1,15 +1,15 @@
 # SSH Keys Setup for Dev Container
 
-## Recommended Approach: SSH Agent Forwarding
+This dev container mounts your host `.ssh` directory into the container path `/home/vscode/.ssh`.
 
-This dev container is configured to automatically mount your host SSH keys, which is the **most secure approach**. No need to copy keys into the container.
+No key copy step is required.
 
 ## How It Works
 
-1. **Automatic Mounting**: Your host `~/.ssh` directory is automatically mounted into the container
-2. **Correct Permissions**: The post-create script sets proper permissions (700 for directory, 600 for private keys)
-3. **SSH Config**: Automatically creates SSH configuration for Azure DevOps and GitHub
-4. **Known Hosts**: Adds Azure DevOps to known hosts automatically
+1. **Automatic Mounting**: host `.ssh` is bind-mounted into container `.ssh`
+2. **Permission Fixup**: `post-start.sh` enforces `700` on `.ssh`, `600` on private keys, and `644` on public keys
+3. **No automatic SSH config generation**: add `~/.ssh/config` entries yourself if needed
+4. **No automatic known-host bootstrap**: run `ssh` once or use `ssh-keyscan` as needed
 
 ## Setup Steps
 
@@ -28,6 +28,7 @@ ssh-keygen -t rsa -b 4096 -C "your.email@example.com"
 ### 2. Add Public Key to Azure DevOps
 
 1. Copy your public key:
+
    ```bash
    cat ~/.ssh/id_rsa.pub
    ```
@@ -61,7 +62,9 @@ git remote -v
 ## Troubleshooting
 
 ### Permission Issues
+
 If you get permission errors:
+
 ```bash
 chmod 700 ~/.ssh
 chmod 600 ~/.ssh/id_rsa
@@ -70,7 +73,9 @@ chmod 600 ~/.ssh/config
 ```
 
 ### SSH Agent Issues
-If SSH agent forwarding isn't working:
+
+If your host key requires an agent and auth fails:
+
 ```bash
 # Start SSH agent
 eval "$(ssh-agent -s)"
@@ -83,19 +88,19 @@ ssh-add -l
 ```
 
 ### Connection Issues
+
 ```bash
 # Test with verbose output
 ssh -vT git@ssh.dev.azure.com
 
-# Check SSH config
-cat ~/.ssh/config
+# Check SSH config (if present)
+test -f ~/.ssh/config && cat ~/.ssh/config
 ```
 
 ## Security Benefits
 
-✅ **Keys stay on host**: Private keys never copied to container
-✅ **Automatic cleanup**: When container is deleted, no keys remain
-✅ **Host control**: You control key lifecycle on your host machine
+✅ **Keys stay on host**: Private keys are not copied by scripts
+✅ **Host control**: You manage key lifecycle in one place
 ✅ **No key duplication**: Single source of truth for your SSH keys
 
 ## Alternative: HTTPS with PAT
