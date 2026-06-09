@@ -14,12 +14,35 @@ chmod 700 ~/.ssh && chmod 600 ~/.ssh/* && chmod 644 ~/.ssh/*.pub 2>/dev/null || 
 # Load environment variables from .env if present
 ENV_FILE="$(cd "$(dirname "$0")/.." && pwd)/.env"
 if [ -f "$ENV_FILE" ]; then
+    # .env is often edited on Windows; normalize CRLF to avoid bash parsing errors.
+    if grep -q $'\r' "$ENV_FILE"; then
+        sed -i 's/\r$//' "$ENV_FILE"
+    fi
     set -a
     # shellcheck source=/dev/null
     source "$ENV_FILE"
     set +a
     echo "Loaded environment from $ENV_FILE"
 fi
+
+# Trim accidental CR and wrapping quotes from env values commonly used in CLI auth.
+ARM_CLIENT_ID="${ARM_CLIENT_ID:-}"
+ARM_CLIENT_SECRET="${ARM_CLIENT_SECRET:-}"
+ARM_TENANT_ID="${ARM_TENANT_ID:-}"
+ARM_SUBSCRIPTION_ID="${ARM_SUBSCRIPTION_ID:-}"
+AZURE_DEVOPS_EXT_PAT="${AZURE_DEVOPS_EXT_PAT:-}"
+AZURE_DEVOPS_ORG_URL="${AZURE_DEVOPS_ORG_URL:-}"
+
+for _var in ARM_CLIENT_ID ARM_CLIENT_SECRET ARM_TENANT_ID ARM_SUBSCRIPTION_ID AZURE_DEVOPS_EXT_PAT AZURE_DEVOPS_ORG_URL; do
+    _val="${!_var}"
+    _val="${_val%$'\r'}"
+    _val="${_val#\"}"
+    _val="${_val%\"}"
+    _val="${_val#\'}"
+    _val="${_val%\'}"
+    printf -v "$_var" '%s' "$_val"
+    export "$_var"
+done
 
 # Authenticate with Azure service principal
 if [ -n "$ARM_CLIENT_ID" ] && [ -n "$ARM_CLIENT_SECRET" ] && [ -n "$ARM_TENANT_ID" ]; then
@@ -32,9 +55,11 @@ fi
 
 # Configure Azure DevOps
 if [ -n "$AZURE_DEVOPS_EXT_PAT" ] && [ -n "$AZURE_DEVOPS_ORG_URL" ]; then
-    az devops configure --defaults organization="$AZURE_DEVOPS_ORG_URL" \
-        && echo "Configured Azure DevOps organization: $AZURE_DEVOPS_ORG_URL" \
-        || echo "Failed to configure Azure DevOps organization"
+    if [[ "$AZURE_DEVOPS_ORG_URL" =~ ^https://dev\.azure\.com/ ]]; then
+        echo "Azure DevOps environment variables detected"
+    else
+        echo "AZURE_DEVOPS_ORG_URL is set but does not look valid: expected https://dev.azure.com/<org>"
+    fi
 else
     echo "No Azure DevOps credentials found - skipping configuration"
 fi
