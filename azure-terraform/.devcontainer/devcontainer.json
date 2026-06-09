@@ -22,7 +22,7 @@
     },
     // Ensure .env file exists before container start (copies from template if missing)
     //"initializeCommand": "bash -c '[ -f .env ] || cp .env.template .env'",
-    "postCreateCommand": "bash .devcontainer/post-create.sh",
+    "postCreateCommand": "bash .devcontainer/fix-git-worktree.sh && bash .devcontainer/post-create.sh",
     // "postStartCommand": "bash -c 'for f in ~/.tfenv/bin/*; do [ -f /usr/local/bin/$(basename $f) ] || sudo ln -s $f /usr/local/bin/$(basename $f); done && chmod 700 ~/.ssh && chmod 600 ~/.ssh/* && chmod 644 ~/.ssh/*.pub 2>/dev/null || true && if [ -n \"$ARM_CLIENT_ID\" ] && [ -n \"$ARM_CLIENT_SECRET\" ] && [ -n \"$ARM_TENANT_ID\" ]; then az login --service-principal -u \"$ARM_CLIENT_ID\" -p \"$ARM_CLIENT_SECRET\" --tenant \"$ARM_TENANT_ID\" && echo \"Logged in to Azure with service principal\" && if [ -n \"$ARM_SUBSCRIPTION_ID\" ]; then az account set --subscription \"$ARM_SUBSCRIPTION_ID\"; fi; else echo \"No Azure SP credentials found - use az login manually\"; fi'",
     "postStartCommand": "bash .devcontainer/post-start.sh",
     "postAttachCommand": "bash .devcontainer/post-attach.sh",
@@ -52,6 +52,13 @@
         {
             "source": "${localEnv:COPILOT_HOME}/workspaceStorage",
             "target": "/home/vscode/.copilot-workspaceStorage",
+            "type": "bind"
+        },
+        {
+            // Mount the parent directory so ALL git worktrees under it work automatically
+            // This scales: any new worktree in C:\jarek\Philipa\ will work without config changes
+            "source": "${localWorkspaceFolder}/..",
+            "target": "/workspaces/repos-parent",
             "type": "bind"
         }
     ],
