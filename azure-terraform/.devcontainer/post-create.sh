@@ -15,6 +15,7 @@ fi
 git config --global core.autocrlf false
 git config --global core.safecrlf warn
 git config --global core.filemode false
+git config --global --add safe.directory "$(pwd)"
 
 # Install tfenv once, then ensure required Terraform versions are present.
 if [ ! -d "$HOME/.tfenv" ]; then
@@ -137,8 +138,8 @@ EOF
 
 # Set up Azure CLI extensions
 echo "🔧 Installing Azure CLI extensions..."
-az extension add --name azure-devops 2>/dev/null || true
-az extension add --name application-insights 2>/dev/null || true
+az extension add --name azure-devops --system 2>/dev/null || true
+az extension add --name application-insights --system 2>/dev/null || true
 az config set extension.use_dynamic_install=yes_without_prompt
 az config set extension.dynamic_install_allow_preview=true
 
