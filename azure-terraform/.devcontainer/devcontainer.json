@@ -18,6 +18,9 @@
         "ghcr.io/devcontainers/features/git:1": {
             "ppa": false,
             "version": "latest"
+        },
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "lts"
         }
     },
     // Ensure .env file exists before container start (copies from template if missing)
@@ -45,6 +48,11 @@
             "type": "bind"
         },
         {
+            "source": "${localEnv:HOME}${localEnv:USERPROFILE}/.continue",
+            "target": "/home/vscode/.continue",
+            "type": "bind"
+        },
+        {
             "source": "${localEnv:COPILOT_HOME}/globalStorage",
             "target": "/home/vscode/.copilot-globalStorage",
             "type": "bind"
@@ -68,6 +76,9 @@
         "vscode": {
             // Set *default* container specific settings.json values on container create.
             "settings": {
+                "remote.extensionKind": {
+                    "Continue.continue": ["workspace"]
+                },
                 "terminal.integrated.defaultProfile.linux": "pwsh",
                 "terraform.experimentalFeatures.validateOnSave": true,
                 "terraform.languageServer.enable": true,
@@ -91,7 +102,8 @@
                 "ms-azure-devops.azure-pipelines",
                 "GitHub.copilot-chat",
                 "ms-vscode.vscode-json",
-                "esbenp.prettier-vscode"
+                "esbenp.prettier-vscode",
+                "Continue.continue"
             ]
         }
     }
