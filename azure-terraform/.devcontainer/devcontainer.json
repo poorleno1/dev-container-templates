@@ -103,7 +103,8 @@
                 "GitHub.copilot-chat",
                 "ms-vscode.vscode-json",
                 "esbenp.prettier-vscode",
-                "Continue.continue"
+                "Continue.continue",
+                "Anthropic.claude-code"
             ]
         }
     }
