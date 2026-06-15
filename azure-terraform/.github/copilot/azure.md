@@ -84,9 +84,67 @@ az devops invoke \
   --api-version "7.1"
 ```
 
+## Azure DevOps Pipeline Build Logs
+
+There is no `az pipelines build log list` command — it does not exist and returns an error. Use `az devops invoke` instead.
+
+### Step 1 — List log IDs for a build
+
+```bash
+az devops invoke \
+  --area build --resource logs \
+  --route-parameters project=<project> buildId=<buildId> \
+  --organization "$AZURE_DEVOPS_ORG_URL" \
+  --api-version "7.1"
+```
+
+Returns a JSON array of log objects with `id`, `lineCount`, and `url`.
+
+### Step 2 — Find the log ID for a specific task
+
+Build URLs encode the job and task as GUIDs: `&j=<job-guid>&t=<task-guid>`. Query the timeline to resolve `t=` to a log ID:
+
+```bash
+az devops invoke \
+  --area build --resource timeline \
+  --route-parameters project=<project> buildId=<buildId> \
+  --organization "$AZURE_DEVOPS_ORG_URL" \
+  --api-version "7.1"
+```
+
+Filter the output by the task GUID to find its `log.id` field.
+
+### Step 3 — Fetch raw log text with curl
+
+`az devops invoke --output tsv` returns empty output for log content. Use curl for raw text:
+
+```bash
+curl -s -u ":$AZURE_DEVOPS_EXT_PAT" \
+  "https://dev.azure.com/<org>/<project>/_apis/build/builds/<buildId>/logs/<logId>?api-version=7.1"
+```
+
+### Searching within a large log
+
+Pipe through grep immediately — logs can be thousands of lines:
+
+```bash
+curl -s -u ":$AZURE_DEVOPS_EXT_PAT" \
+  "https://dev.azure.com/<org>/<project>/_apis/build/builds/<buildId>/logs/<logId>?api-version=7.1" \
+  | grep -n "resource_name\|keyword"
+```
+
+To read a specific line range after locating a line number, and strip the timestamp prefix:
+
+```bash
+curl -s -u ":$AZURE_DEVOPS_EXT_PAT" \
+  "https://dev.azure.com/<org>/<project>/_apis/build/builds/<buildId>/logs/<logId>?api-version=7.1" \
+  | sed -n '508,650p' | sed 's/^[0-9T:Z.]*Z //'
+```
+
 ## Important Guardrails
 
-- Do not use curl with AZURE_DEVOPS_EXT_PAT for Azure DevOps wiki endpoints.
+- Do not use curl with AZURE_DEVOPS_EXT_PAT for Azure DevOps **wiki** endpoints — use `az devops wiki` CLI commands instead.
+- For build log **content**, curl IS the correct tool — `az devops invoke` returns empty output for raw log text.
 - Do not use az rest for Azure DevOps wiki operations.
 - Do not source .env files in automation; rely on environment variables already provided.
 - Validate organization access early with az devops project list.
