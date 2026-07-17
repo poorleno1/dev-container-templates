@@ -15,7 +15,6 @@ fi
 git config --global core.autocrlf false
 git config --global core.safecrlf warn
 git config --global core.filemode false
-git config --global --add safe.directory "$(pwd)"
 
 # Install tfenv once, then ensure required Terraform versions are present.
 if [ ! -d "$HOME/.tfenv" ]; then
@@ -59,12 +58,7 @@ pwsh -c "Install-Module -Name az.accounts -RequiredVersion 4.0.2 -Force -AllowCl
 pwsh -c "Install-Module -Name az.accounts -RequiredVersion 5.3.2 -Force -AllowClobber -Scope CurrentUser"
 
 
-# Set up Git configuration (if not already configured)
-if [ -z "$(git config --global user.name)" ]; then
-    echo "⚠️  Git user not configured. Please run:"
-    echo "   git config --global user.name 'Your Name'"
-    echo "   git config --global user.email 'your.email@example.com'"
-fi
+
 
 # # Create useful aliases and environment variable loading
 # echo "🔧 Setting up aliases and environment variables..."
@@ -91,41 +85,10 @@ fi
 az config set core.login_experience_v2=off
 az config set core.enable_broker_on_windows=false
 
-# Log in to Azure using Service Principal environment variables
-echo "🔐 Logging in to Azure..."
-if [ -n "${ARM_CLIENT_ID:-}" ] && [ -n "${ARM_CLIENT_SECRET:-}" ] && [ -n "${ARM_TENANT_ID:-}" ]; then
-        az login --service-principal \
-        --username "$ARM_CLIENT_ID" \
-        --password "$ARM_CLIENT_SECRET" \
-        --tenant "$ARM_TENANT_ID"
-    if [ -n "${ARM_SUBSCRIPTION_ID:-}" ]; then
-        az account set --subscription "$ARM_SUBSCRIPTION_ID"
-    fi
-    echo "✅ Azure login successful."
-else
-    echo "⚠️  Azure login skipped: ARM_CLIENT_ID, ARM_CLIENT_SECRET, or ARM_TENANT_ID is not set."
-fi
+# Azure login is handled by postStartCommand (post-start.sh), which runs immediately
+# after this script on initial creation and again on every subsequent container start.
 
 az config set extension.use_dynamic_install=yes_without_prompt
-
-
-# Add to PowerShell profile
-echo "🔧 Setting up PowerShell profile..."
-mkdir -p ~/.config/powershell
-cat >> ~/.config/powershell/Microsoft.PowerShell_profile.ps1 << 'EOF'
-
-# # Load environment variables from .env file (for AI agents and MCP servers)
-# $envFile = "/workspaces/Infrastructure/.env"
-# if (Test-Path $envFile) {
-#     Get-Content $envFile | ForEach-Object {
-#         if ($_ -match '^\s*([^#][^=]+)=(.*)$') {
-#             $name = $matches[1].Trim()
-#             $value = $matches[2].Trim()
-#             [System.Environment]::SetEnvironmentVariable($name, $value, [System.EnvironmentVariableTarget]::Process)
-#         }
-#     }
-# }
-EOF
 
 
 # # Copy SSH config if mounted
