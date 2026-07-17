@@ -16,7 +16,7 @@ ENV_FILE="$(cd "$(dirname "$0")/.." && pwd)/.env"
 if [ -f "$ENV_FILE" ]; then
     set -a
     # shellcheck source=/dev/null
-    source "$ENV_FILE"
+    source <(sed 's/\r$//' "$ENV_FILE")
     set +a
     echo "Loaded environment from $ENV_FILE"
 fi
