@@ -48,16 +48,17 @@
             "type": "bind"
         },
         {
-            // Cline stores tasks and chat history in VS Code Server's per-extension
-            // globalStorage, which is recreated on every rebuild. We can't bind-mount
-            // directly into .vscode-server/... — Docker auto-creates missing parent
-            // dirs of a bind mount target as root before the container's non-root
-            // user gets a chance to touch them, and VS Code Server's own bootstrap
-            // (running as vscode) then fails to create sibling dirs (bin/, data/Machine/)
-            // in that same root-owned tree. Mount to a plain top-level path instead;
-            // post-start.sh symlinks it into globalStorage after bootstrap completes.
+            // Cline 4.x runs the SDK-based "next" bundle, which keeps ALL of its state
+            // under ~/.cline/data — secrets.json (API keys), settings/, globalState.json,
+            // and db/sessions.db (conversation history). It has already migrated off VS
+            // Code Server's globalStorage, so ~/.cline is the directory to mount.
+            //
+            // This is a plain top-level home path, like the .claude mount above, so the
+            // .vscode-server bootstrap ownership problem does not apply and no symlink
+            // indirection is needed. The rollout bundle is pinned to "next" in the
+            // settings below so this location cannot silently change.
             "source": "${localEnv:CLINE_HOME}",
-            "target": "/home/vscode/.cline-globalStorage",
+            "target": "/home/vscode/.cline",
             "type": "bind"
         },
         {
@@ -92,6 +93,11 @@
                 "remote.extensionKind": {
                     "Continue.continue": ["workspace"]
                 },
+                // Pin Cline to the SDK-based bundle. On "auto" a remote rollout can flip
+                // Cline back to the legacy bundle, which stores its state in VS Code
+                // globalStorage instead of ~/.cline — silently bypassing the mount below
+                // and losing settings and history on the next rebuild.
+                "cline.rollout.bundleOverride": "next",
                 "terminal.integrated.defaultProfile.linux": "pwsh",
                 "terraform.experimentalFeatures.validateOnSave": true,
                 "terraform.languageServer.enable": true,
