@@ -104,7 +104,8 @@
                 "ms-vscode.vscode-json",
                 "esbenp.prettier-vscode",
                 "Continue.continue",
-                "Anthropic.claude-code"
+                "Anthropic.claude-code",
+                "saoudrizwan.claude-dev"
             ]
         }
     }
