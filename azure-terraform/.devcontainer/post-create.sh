@@ -44,6 +44,41 @@ sudo apt-get install -y \
     python3-pip \
     ripgrep
 
+# Install Node.js LTS (required by Cline MCP servers: filesystem + Azure MCP).
+# Installed under ~/.local/nodejs to match the absolute path used in
+# cline_mcp_settings.json:
+#   - Azure MCP: /home/vscode/.local/nodejs/bin/npx
+echo "📦 Installing Node.js (required by Cline MCP servers)..."
+NODE_DIR="$HOME/.local/nodejs"
+if [ ! -x "$NODE_DIR/bin/node" ]; then
+    mkdir -p "$NODE_DIR"
+    NODE_VERSION="$(curl -fsSL https://nodejs.org/dist/index.json | jq -r '[.[] | select(.lts != false)][0].version' | sed 's/^v//')"
+    echo "   Installing Node.js v${NODE_VERSION}..."
+    curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" \
+        | tar -xJ --strip-components=1 -C "$NODE_DIR"
+fi
+export PATH="$NODE_DIR/bin:$PATH"
+
+# Persist Node's bin directory on PATH for future shell sessions.
+NODE_PATH_LINE='export PATH="$HOME/.local/nodejs/bin:$PATH"'
+grep -qxF "$NODE_PATH_LINE" ~/.bashrc || echo "$NODE_PATH_LINE" >> ~/.bashrc
+grep -qxF "$NODE_PATH_LINE" ~/.zshrc || echo "$NODE_PATH_LINE" >> ~/.zshrc
+
+# Install the Cline MCP filesystem server package at the path referenced by
+# cline_mcp_settings.json:
+#   - Filesystem MCP: /home/vscode/Documents/Cline/MCP/filesystem
+echo "📁 Installing Cline MCP filesystem server package..."
+FS_MCP_DIR="$HOME/Documents/Cline/MCP/filesystem"
+if [ ! -d "$FS_MCP_DIR/node_modules/@modelcontextprotocol/server-filesystem" ]; then
+    mkdir -p "$FS_MCP_DIR"
+    (cd "$FS_MCP_DIR" && "$NODE_DIR/bin/npm" install @modelcontextprotocol/server-filesystem --no-fund --no-audit)
+fi
+
+# Pre-cache the Azure MCP server package globally so npx can start it instantly.
+# The Azure MCP server is configured in cline_mcp_settings.json and .claude/mcp.json
+# using: /home/vscode/.local/nodejs/bin/npx -y @azure/mcp@latest server start
+echo "☁️  Pre-caching Azure MCP server package..."
+"$NODE_DIR/bin/npm" install -g @azure/mcp@latest --no-fund --no-audit
 
 #echo "📦 Installing Claude CLI..."
 #curl -fsSL https://claude.ai/install.sh | bash
@@ -58,7 +93,12 @@ pwsh -c "Install-Module -Name az.accounts -RequiredVersion 4.0.2 -Force -AllowCl
 pwsh -c "Install-Module -Name az.accounts -RequiredVersion 5.3.2 -Force -AllowClobber -Scope CurrentUser"
 
 
-
+# Set up Git configuration (if not already configured)
+if [ -z "$(git config --global user.name)" ]; then
+    echo "⚠️  Git user not configured. Please run:"
+    echo "   git config --global user.name 'Your Name'"
+    echo "   git config --global user.email 'your.email@example.com'"
+fi
 
 # # Create useful aliases and environment variable loading
 # echo "🔧 Setting up aliases and environment variables..."
@@ -85,10 +125,41 @@ fi
 az config set core.login_experience_v2=off
 az config set core.enable_broker_on_windows=false
 
-# Azure login is handled by postStartCommand (post-start.sh), which runs immediately
-# after this script on initial creation and again on every subsequent container start.
+# Log in to Azure using Service Principal environment variables
+echo "🔐 Logging in to Azure..."
+if [ -n "${ARM_CLIENT_ID:-}" ] && [ -n "${ARM_CLIENT_SECRET:-}" ] && [ -n "${ARM_TENANT_ID:-}" ]; then
+        az login --service-principal \
+        --username "$ARM_CLIENT_ID" \
+        --password "$ARM_CLIENT_SECRET" \
+        --tenant "$ARM_TENANT_ID"
+    if [ -n "${ARM_SUBSCRIPTION_ID:-}" ]; then
+        az account set --subscription "$ARM_SUBSCRIPTION_ID"
+    fi
+    echo "✅ Azure login successful."
+else
+    echo "⚠️  Azure login skipped: ARM_CLIENT_ID, ARM_CLIENT_SECRET, or ARM_TENANT_ID is not set."
+fi
 
 az config set extension.use_dynamic_install=yes_without_prompt
+
+
+# Add to PowerShell profile
+echo "🔧 Setting up PowerShell profile..."
+mkdir -p ~/.config/powershell
+cat >> ~/.config/powershell/Microsoft.PowerShell_profile.ps1 << 'EOF'
+
+# # Load environment variables from .env file (for AI agents and MCP servers)
+# $envFile = "/workspaces/Infrastructure/.env"
+# if (Test-Path $envFile) {
+#     Get-Content $envFile | ForEach-Object {
+#         if ($_ -match '^\s*([^#][^=]+)=(.*)$') {
+#             $name = $matches[1].Trim()
+#             $value = $matches[2].Trim()
+#             [System.Environment]::SetEnvironmentVariable($name, $value, [System.EnvironmentVariableTarget]::Process)
+#         }
+#     }
+# }
+EOF
 
 
 # # Copy SSH config if mounted
@@ -101,8 +172,8 @@ az config set extension.use_dynamic_install=yes_without_prompt
 
 # Set up Azure CLI extensions
 echo "🔧 Installing Azure CLI extensions..."
-az extension add --name azure-devops --system 2>/dev/null || true
-az extension add --name application-insights --system 2>/dev/null || true
+az extension add --name azure-devops 2>/dev/null || true
+az extension add --name application-insights 2>/dev/null || true
 az config set extension.use_dynamic_install=yes_without_prompt
 az config set extension.dynamic_install_allow_preview=true
 
