@@ -25,7 +25,7 @@
     },
     // Ensure .env file exists before container start (copies from template if missing)
     //"initializeCommand": "bash -c '[ -f .env ] || cp .env.template .env'",
-    "postCreateCommand": "bash .devcontainer/fix-git-worktree.sh && bash .devcontainer/post-create.sh",
+    "postCreateCommand": "bash .devcontainer/post-create.sh",
     // "postStartCommand": "bash -c 'for f in ~/.tfenv/bin/*; do [ -f /usr/local/bin/$(basename $f) ] || sudo ln -s $f /usr/local/bin/$(basename $f); done && chmod 700 ~/.ssh && chmod 600 ~/.ssh/* && chmod 644 ~/.ssh/*.pub 2>/dev/null || true && if [ -n \"$ARM_CLIENT_ID\" ] && [ -n \"$ARM_CLIENT_SECRET\" ] && [ -n \"$ARM_TENANT_ID\" ]; then az login --service-principal -u \"$ARM_CLIENT_ID\" -p \"$ARM_CLIENT_SECRET\" --tenant \"$ARM_TENANT_ID\" && echo \"Logged in to Azure with service principal\" && if [ -n \"$ARM_SUBSCRIPTION_ID\" ]; then az account set --subscription \"$ARM_SUBSCRIPTION_ID\"; fi; else echo \"No Azure SP credentials found - use az login manually\"; fi'",
     "postStartCommand": "bash .devcontainer/post-start.sh",
     "postAttachCommand": "bash .devcontainer/post-attach.sh",
@@ -45,6 +45,19 @@
         {
             "source": "${localEnv:CLAUDE_HOME}",
             "target": "/home/vscode/.claude",
+            "type": "bind"
+        },
+        {
+            // Cline stores tasks and chat history in VS Code Server's per-extension
+            // globalStorage, which is recreated on every rebuild. We can't bind-mount
+            // directly into .vscode-server/... — Docker auto-creates missing parent
+            // dirs of a bind mount target as root before the container's non-root
+            // user gets a chance to touch them, and VS Code Server's own bootstrap
+            // (running as vscode) then fails to create sibling dirs (bin/, data/Machine/)
+            // in that same root-owned tree. Mount to a plain top-level path instead;
+            // post-start.sh symlinks it into globalStorage after bootstrap completes.
+            "source": "${localEnv:CLINE_HOME}",
+            "target": "/home/vscode/.cline-globalStorage",
             "type": "bind"
         },
         {
