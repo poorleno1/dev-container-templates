@@ -11,14 +11,72 @@ done
 # Fix SSH permissions
 chmod 700 ~/.ssh && chmod 600 ~/.ssh/* && chmod 644 ~/.ssh/*.pub 2>/dev/null || true
 
-# Load environment variables from .env if present
+# Load environment variables from .env if present.
+#
+# devcontainer.json passes .env to "docker run" via --env-file, but that is applied
+# only when the container is CREATED. Editing .env and merely restarting the
+# container ("Reopen in Container" without a rebuild) keeps the stale values baked
+# into the container config. So on every start we re-read .env ourselves and write
+# the values into shell startup files, which is what interactive terminals read.
+#
+# Parse the file literally instead of sourcing it, matching docker --env-file
+# semantics: everything after the first "=" is the value, with no shell expansion
+# and no quote stripping. Sourcing would diverge from what docker injected for any
+# value containing $, spaces, or quotes.
 ENV_FILE="$(cd "$(dirname "$0")/.." && pwd)/.env"
+BASH_ENV_FILE="$HOME/.devcontainer-env.sh"
+PWSH_ENV_FILE="$HOME/.devcontainer-env.ps1"
+
 if [ -f "$ENV_FILE" ]; then
+    # These hold secrets, so create them unreadable to anyone else before writing.
+    for f in "$BASH_ENV_FILE" "$PWSH_ENV_FILE"; do
+        : > "$f"
+        chmod 600 "$f"
+    done
+
+    env_count=0
+    while IFS= read -r line; do
+        # Skip comments and anything that is not a KEY=VALUE assignment.
+        case "$line" in
+            '#'*) continue ;;
+            *=*) ;;
+            *) continue ;;
+        esac
+        key="${line%%=*}"
+        value="${line#*=}"
+        value="${value%$'\r'}"  # tolerate a CRLF .env authored on the Windows host
+        case "$key" in
+            [A-Za-z_]*) ;;
+            *) continue ;;
+        esac
+
+        printf 'export %s=%q\n' "$key" "$value" >> "$BASH_ENV_FILE"
+        # PowerShell single-quoted strings escape a quote by doubling it.
+        printf "\$env:%s = '%s'\n" "$key" "${value//\'/\'\'}" >> "$PWSH_ENV_FILE"
+        env_count=$((env_count + 1))
+    done < "$ENV_FILE"
+
+    # Apply to this script too, so the Azure logins below use the current values.
     set -a
     # shellcheck source=/dev/null
-    source "$ENV_FILE"
+    source "$BASH_ENV_FILE"
     set +a
-    echo "Loaded environment from $ENV_FILE"
+    echo "Loaded $env_count environment variables from $ENV_FILE"
+
+    # Point every interactive shell at the generated files. Both the rc files and
+    # the generated files live in the container filesystem, so these guards are
+    # re-applied after each rebuild.
+    BASH_SOURCE_LINE='[ -f "$HOME/.devcontainer-env.sh" ] && . "$HOME/.devcontainer-env.sh"'
+    for rc in ~/.bashrc ~/.zshrc; do
+        grep -qxF "$BASH_SOURCE_LINE" "$rc" 2>/dev/null || echo "$BASH_SOURCE_LINE" >> "$rc"
+    done
+
+    PWSH_PROFILE="$HOME/.config/powershell/Microsoft.PowerShell_profile.ps1"
+    PWSH_SOURCE_LINE='if (Test-Path "$HOME/.devcontainer-env.ps1") { . "$HOME/.devcontainer-env.ps1" }'
+    mkdir -p "$(dirname "$PWSH_PROFILE")"
+    grep -qxF "$PWSH_SOURCE_LINE" "$PWSH_PROFILE" 2>/dev/null || echo "$PWSH_SOURCE_LINE" >> "$PWSH_PROFILE"
+else
+    echo "⚠️  No .env found at $ENV_FILE - skipping environment variable loading"
 fi
 
 # Authenticate with Azure service principal
