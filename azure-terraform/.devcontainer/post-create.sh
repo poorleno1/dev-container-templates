@@ -139,6 +139,22 @@ exec env GITHUB_PERSONAL_ACCESS_TOKEN="$TOKEN" \
 GH_MCP_WRAPPER
 chmod 755 "$HOME/.local/bin/github-mcp-stdio"
 
+# Install uv/uvx — a fast Python package/tool runner. Needed to run the
+# Specify CLI (spec-kit: `uvx --from git+https://github.com/github/spec-kit.git
+# specify ...`) without polluting the system interpreter; also generally
+# useful for any other Python-based dev tool run via `uvx`.
+#
+# Installs to ~/.local/bin, which .profile already puts on PATH — no extra
+# PATH wiring needed. Like the GitHub MCP binary above, this is not a mounted
+# volume, so a rebuild wipes it and this script re-running is what keeps it
+# present.
+echo "🐍 Installing uv/uvx..."
+if [ ! -x "$HOME/.local/bin/uv" ]; then
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+else
+    echo "   uv already installed, skipping."
+fi
+
 # Install the sooperset/mcp-atlassian server (Jira + Confluence) at the path
 # referenced by .claude/mcp.json:
 #   - Atlassian MCP: /home/vscode/.local/bin/mcp-atlassian
