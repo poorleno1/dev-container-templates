@@ -80,6 +80,77 @@ fi
 echo "☁️  Pre-caching Azure MCP server package..."
 "$NODE_DIR/bin/npm" install -g @azure/mcp@latest --no-fund --no-audit
 
+# Install the official GitHub MCP server binary at the paths referenced by
+# cline_mcp_settings.json:
+#   - GitHub MCP: /home/vscode/.local/bin/github-mcp-stdio (wrapper)
+#                 -> /home/vscode/.local/bin/github-mcp-server (binary)
+#
+# The remote endpoint (https://api.githubcopilot.com/mcp/) cannot be used from
+# Cline: its OAuth server does not support dynamic client registration, so Cline
+# fails with "Incompatible auth server". The local binary avoids OAuth entirely
+# and reads a PAT from the environment instead.
+echo "🐙 Installing GitHub MCP server..."
+GH_MCP_VERSION="1.9.0"
+GH_MCP_BIN="$HOME/.local/bin/github-mcp-server"
+mkdir -p "$HOME/.local/bin"
+if ! "$GH_MCP_BIN" --version 2>/dev/null | grep -q "Version: ${GH_MCP_VERSION}"; then
+    case "$(uname -m)" in
+        x86_64) GH_MCP_ARCH="x86_64" ;;
+        aarch64 | arm64) GH_MCP_ARCH="arm64" ;;
+        *) GH_MCP_ARCH="" ;;
+    esac
+
+    if [ -z "$GH_MCP_ARCH" ]; then
+        echo "⚠️  Unsupported architecture $(uname -m); skipping GitHub MCP server install."
+    else
+        GH_MCP_TMP="$(mktemp -d)"
+        GH_MCP_URL="https://github.com/github/github-mcp-server/releases/download/v${GH_MCP_VERSION}"
+        GH_MCP_TAR="github-mcp-server_Linux_${GH_MCP_ARCH}.tar.gz"
+        echo "   Installing github-mcp-server v${GH_MCP_VERSION} (${GH_MCP_ARCH})..."
+        curl -fsSL -o "$GH_MCP_TMP/$GH_MCP_TAR" "$GH_MCP_URL/$GH_MCP_TAR"
+        curl -fsSL -o "$GH_MCP_TMP/checksums.txt" \
+            "$GH_MCP_URL/github-mcp-server_${GH_MCP_VERSION}_checksums.txt"
+        (cd "$GH_MCP_TMP" && sha256sum --check --ignore-missing --status checksums.txt)
+        tar -xzf "$GH_MCP_TMP/$GH_MCP_TAR" -C "$GH_MCP_TMP" github-mcp-server
+        install -m 755 "$GH_MCP_TMP/github-mcp-server" "$GH_MCP_BIN"
+        rm -rf "$GH_MCP_TMP"
+    fi
+fi
+
+# Wrapper that supplies the token from the container environment. Cline performs
+# no variable expansion in cline_mcp_settings.json, but it does spawn stdio MCP
+# servers with the full parent environment - so the PAT stays in .env and never
+# lands in the settings file.
+cat > "$HOME/.local/bin/github-mcp-stdio" << 'GH_MCP_WRAPPER'
+#!/usr/bin/env bash
+# Launch the official GitHub MCP server over stdio.
+# Accepts either GITHUB_PERSONAL_ACCESS_TOKEN (the server's native variable) or
+# GITHUB_TOKEN (what this devcontainer's .env provides).
+set -euo pipefail
+
+TOKEN="${GITHUB_PERSONAL_ACCESS_TOKEN:-${GITHUB_TOKEN:-}}"
+if [ -z "$TOKEN" ]; then
+    echo "github-mcp-stdio: no GITHUB_PERSONAL_ACCESS_TOKEN or GITHUB_TOKEN in environment" >&2
+    exit 1
+fi
+
+exec env GITHUB_PERSONAL_ACCESS_TOKEN="$TOKEN" \
+    "$(dirname "$(readlink -f "$0")")/github-mcp-server" stdio "$@"
+GH_MCP_WRAPPER
+chmod 755 "$HOME/.local/bin/github-mcp-stdio"
+
+# Install the sooperset/mcp-atlassian server (Jira + Confluence) at the path
+# referenced by .claude/mcp.json:
+#   - Atlassian MCP: /home/vscode/.local/bin/mcp-atlassian
+#
+# This is a --user pip install, so it lands under ~/.local like the GitHub MCP
+# binary above - not a mounted/persistent volume, so a rebuild wipes it. This
+# script re-running on every rebuild is what keeps it present.
+# Reads CONFLUENCE_URL/CONFLUENCE_USERNAME/CONFLUENCE_API_TOKEN and
+# JIRA_URL/JIRA_USERNAME/JIRA_API_TOKEN from the container environment (.env).
+echo "🔗 Installing Atlassian MCP server (Jira + Confluence)..."
+python3 -m pip install --user --break-system-packages --quiet "mcp-atlassian==0.23.1"
+
 #echo "📦 Installing Claude CLI..."
 #curl -fsSL https://claude.ai/install.sh | bash
 
