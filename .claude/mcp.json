@@ -36,6 +36,13 @@
       "type": "sse",
       "url": "https://learn.microsoft.com/api/mcp",
       "description": "Microsoft Learn MCP - Access to Microsoft documentation and learning resources"
+    },
+    "atlassian": {
+      "type": "stdio",
+      "command": "/home/vscode/.local/bin/mcp-atlassian",
+      "args": [],
+      "description": "sooperset/mcp-atlassian - Jira and Confluence integration. Reads CONFLUENCE_URL, CONFLUENCE_USERNAME, CONFLUENCE_API_TOKEN, JIRA_URL, JIRA_USERNAME, JIRA_API_TOKEN from the container environment (set in .env, not committed).",
+      "version": "0.23.1"
     }
   }
 }
